@@ -5,11 +5,15 @@ import { Card, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { roomContext } from "@/contexts/roomContext";
+import { colorContext } from "@/contexts/colorContext";
+
+import {type onWaitingForGameData } from "@/hooks/game.socket";
 
 export default function Game() {
   const [waitingForGame,setWaitingForGame] = useState<boolean>(true)
   const navigate = useNavigate()
   const { currentRoom, setCurrentRoom } = useContext(roomContext)
+  const { color, setColor } = useContext(colorContext)
 
   const navHome = () => {
     navigate("/")
@@ -22,7 +26,8 @@ export default function Game() {
 
   // Listen for when game starts and waiting screen can be removed.
   useEffect(() => {
-    const handleGameStart = () => {
+    const handleGameStart = (data: onWaitingForGameData) => {
+      setColor(data.color)
       setWaitingForGame(false)
       console.log("Game started")
     }

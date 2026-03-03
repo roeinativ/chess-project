@@ -12,11 +12,14 @@ export type moveData = {
   valid: boolean;
 };
 
-export type onNotValidMoveData = {
-  from: string,
-  to: string,
-  promotion: string,
-  valid: boolean,
+export type onMoveData = {
+  fen: string,
+}
+
+export type onWaitingForGameData = {
+  username: string,
+  room: string,
+  color: 'white' | 'black',
 }
 
 
@@ -39,12 +42,15 @@ export const gameSocket = {
   },
 
   makeMove: (
+    room: string | null,
     username: string | null,
     from: string,
     to: string,
     promotion: string,
   ) => {
     socket.emit("move", {
+      sid: socket.id,
+      room: room,
       username: username ?? "Guest",
       from: from,
       to: to,
@@ -52,15 +58,15 @@ export const gameSocket = {
     });
   },
 
-  onNotValidMove: (callback: (data: onNotValidMoveData) => void) => {
-    socket.on("not_valid", callback)
+  onNotValidMove: (callback: (data: moveData) => void) => {
+    socket.on("is_move_valid", callback)
   },
 
   offNotValidMove: () => {
     socket.off("not_valid")
   },
 
-  onWaitingForGame: (callback: (data: OnJoinGameData) => void) => {
+  onWaitingForGame: (callback: (data: onWaitingForGameData) => void) => {
     socket.on("start_game",callback)
   },
 
@@ -73,5 +79,13 @@ export const gameSocket = {
       room: currentRoom,
       sid: socket.id,
     })
+  },
+
+  onMove : (callback: (data: onMoveData) => void) => {
+    socket.on("move",callback)
+  },
+
+  offOnMove: () => {
+    socket.off("move")
   }
 };

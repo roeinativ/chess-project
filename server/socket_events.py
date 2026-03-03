@@ -1,9 +1,10 @@
 from flask_socketio import emit, join_room, leave_room
 
 class SocketEvents:
-    def __init__(self,socketio, room_manager):
+    def __init__(self,socketio, room_manager,board_manager):
         self.socketio = socketio
         self.room_manager = room_manager
+        self.board_manager = board_manager
         self.home = room_manager.get_home()
         self.register()
         
@@ -21,6 +22,7 @@ class SocketEvents:
             
             join_room(self.home)
             self.room_manager.add_to_home(sid)
+            
             print(f"Home users: {self.room_manager.get_home_users()}")
             
             emit("join_home", {"username":username, "room":self.home}, to=sid)
@@ -40,14 +42,25 @@ class SocketEvents:
                 start_game = True
                 
             join_room(game_room)
-            self.socketio.sleep(0.1)
+            
+         
             
             emit("join_game", {"username":username, "room":game_room}, to=sid)
             print(f"{username} is being added to room {game_room}")
             print(f"Home users: {self.room_manager.get_home_users()}\n Game rooms: {self.room_manager.get_rooms()}")
             
             if start_game:
-                emit("start_game", {"username": username, "room": game_room}, to=game_room)
+                sid_list = self.room_manager.get_room_sids(game_room)
+                color_list = self.board_manager.get_colors()
+                
+                self.board_manager.create_new_board()
+                
+                def send_start():
+                    self.socketio.sleep(0.1)  
+                    self.socketio.emit("start_game", {"room": game_room, "color": color_list[0]}, to=sid_list[0])
+                    self.socketio.emit("start_game", {"room": game_room, "color": color_list[1]}, to=sid_list[1])
+        
+                self.socketio.start_background_task(send_start)
                     
                 print(f"Room number: {game_room}, start the game")
             
@@ -70,6 +83,35 @@ class SocketEvents:
             print(f"{sid} canceld matchmaking and is now joining home")
             print(f"Home users: {self.room_manager.get_home_users()}")
             
+        
+        # Get piece move from player
+        
+        @self.socketio.on("move")
+        def handle_move(data):
+            sid = data.get("sid")
+            room = data.get("room")
             
+            print(f"When listening for move the room is {room}")
+        
+            square_from = data.get("from")
+            square_to = data.get("to")
             
+            move = square_from + square_to
+                        
+            if self.board_manager.valid_move(move,room):
+                
+                # Push current game virtual server board and get fen
+                self.board_manager.push_board(move,room)
+                fen = self.board_manager.get_board_fen(room)
+                
+                # Emit to current player
+                emit("is_move_valid", {"from": square_from, "to": square_to, "valid": True}, to=sid)
+                
+                # Emit to opponent
+                opponent_sid = self.room_manager.get_opponent_sid(room,sid)
+                emit("move", {"fen": fen}, to=opponent_sid)
+                print("Move valid sending to opponent")
+                
+            else:
+                print("Move not valid")
             

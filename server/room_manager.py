@@ -18,7 +18,7 @@ class RoomManager:
     def add_to_game_room(self,sid):
         self.home_users.remove(sid)
         self.rooms[self.current_room].append(sid)
-        
+
         if len(self.rooms[self.current_room]) == self.MAX_PLAYERS_IN_ROOM:
             return True
     
@@ -44,3 +44,12 @@ class RoomManager:
             if sid in users:
                 users.remove(sid)
                 return
+            
+    def get_room_sids(self,room):
+        return self.rooms[room]
+    
+    def get_opponent_sid(self,room,sid):
+        current_room = self.rooms[room]
+        for player_sid in current_room:
+            if player_sid != sid:
+                return player_sid

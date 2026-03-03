@@ -35,7 +35,7 @@ export default function useSocket() {
     return () => {
       homeSocket.offJoinHome();
     };
-  }, []);
+  }, []); 
 
   // Handle join game 
   useEffect(() => {
