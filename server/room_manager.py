@@ -15,12 +15,17 @@ class RoomManager:
     def get_rooms(self):
         return self.rooms
     
-    def add_to_game_room(self,username):
-        self.home_users.remove(username)
-        self.rooms[self.current_room].append(username)
+    def add_to_game_room(self,sid):
+        self.home_users.remove(sid)
+        self.rooms[self.current_room].append(sid)
+        
+        if len(self.rooms[self.current_room]) == self.MAX_PLAYERS_IN_ROOM:
+            return True
     
-    def add_to_home(self,username):
-        self.home_users.append(username)
+        return False
+    
+    def add_to_home(self,sid):
+        self.home_users.append(sid)
         
     def find_room(self):
         if self.current_room not in self.rooms:
@@ -28,8 +33,14 @@ class RoomManager:
             return self.current_room
         
         if len(self.rooms[self.current_room]) < self.MAX_PLAYERS_IN_ROOM:
-            return self.rooms[self.current_room]
+            return self.current_room
         
         self.current_room += 1
         self.rooms[self.current_room] = []
-        return self.rooms[self.current_room]
+        return self.current_room
+    
+    def remove_from_room(self, sid):
+        for room, users in self.rooms.items():
+            if sid in users:
+                users.remove(sid)
+                return

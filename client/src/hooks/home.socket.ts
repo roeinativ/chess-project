@@ -11,6 +11,7 @@ export const homeSocket = {
       username: username ?? "Guest",
       sid: socket.id,
     });
+    console.log("Emited join home")
   },
 
   onJoinHome: (callback: (data: onJoinHomeData) => void) => {

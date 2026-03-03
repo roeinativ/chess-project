@@ -1,20 +1,29 @@
-import { useEffect, useState, useRef, useContext } from "react";
+import { useEffect, useRef, useContext } from "react";
 import { homeSocket, type onJoinHomeData } from "./home.socket";
-import { gameSocket, type OnJoinGameData, type moveData } from "./game.socket";
+import { gameSocket, type OnJoinGameData } from "./game.socket";
 import { userContext } from "@/contexts/userContext";
+import { roomContext } from "@/contexts/roomContext";
+import { socket } from "./socket";
 
 export default function useSocket() {
-  const { username, setUserName} = useContext(userContext)
-  const [currentRoom, setCurrentRoom] = useState<string>("");
+  const { username, setUserName } = useContext(userContext)
+  const { currentRoom, setCurrentRoom } = useContext(roomContext) 
   const joined_home = useRef(false);
 
+  // Join home once when connecting
   useEffect(() => {
-    if (!joined_home.current) {
-      homeSocket.joinHome(username);
-      joined_home.current = true;
+    const handleConnect = () => {
+      if (!joined_home.current) {
+        homeSocket.joinHome(username);
+        joined_home.current = true;
+      }
     }
+
+    socket.once("connect", handleConnect);
+    
   }, []);
 
+  // Handle join home 
   useEffect(() => {
     const handleJoinHome = (data: onJoinHomeData) => {
       setCurrentRoom(data.room);
@@ -28,6 +37,7 @@ export default function useSocket() {
     };
   }, []);
 
+  // Handle join game 
   useEffect(() => {
     const handleJoinGame = (data: OnJoinGameData) => {
       setCurrentRoom(data.room);
@@ -41,16 +51,16 @@ export default function useSocket() {
     };
   }, []);
 
+
+  // Send server to join a game
   const joinGame = () => {
     gameSocket.joinGame(username, currentRoom);
   };
 
-  const makeMove = (from: string, to: string, promotion: string) => {
-    gameSocket.makeMove(username,from,to,promotion)
-    console.log("Sent server move")
-  }
+  // Send server your move
 
 
 
-  return { joinGame: joinGame, makeMove: makeMove };
+
+  return { joinGame: joinGame };
 }

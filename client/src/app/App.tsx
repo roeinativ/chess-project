@@ -3,10 +3,13 @@ import "/src/App.css";
 import { userContext } from "@/contexts/userContext";
 import { roomContext } from "@/contexts/roomContext";
 import { useState } from "react";
+import { socket } from "@/hooks/socket";
 
 export default function App() {
   const [username, setUserName] = useState<string | null>('Guest')
   const [currentRoom, setCurrentRoom] = useState<string | null>(null)
+
+  socket.connect()
 
   return (
     <>

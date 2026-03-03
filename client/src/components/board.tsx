@@ -1,7 +1,6 @@
 import { useState, useRef, useContext, useEffect } from "react";
 import { Chessboard } from "react-chessboard";
 import { Chess } from "chess.js";
-import useSocket from "@/hooks/useSocket";
 import { userContext } from "@/contexts/userContext";
 import { roomContext } from "@/contexts/roomContext";
 import { gameSocket } from "@/hooks/game.socket";
@@ -20,14 +19,21 @@ export default function Board() {
     valid: boolean,
   }
 
+  const makeMove = (from: string, to: string, promotion: string) => {
+    gameSocket.makeMove(username,from,to,promotion)
+    console.log("Sent server move")
+  }
+
   const { username, setUserName } = useContext(userContext)
   const { currentRoom,setCurrentRoom } = useContext(roomContext)
-  const { makeMove } = useSocket();
   
 
   const chessGameRef = useRef(new Chess());
   const chessGame = chessGameRef.current;
   const [fen, setFen] = useState(chessGame.fen());
+
+
+  
 
   useEffect(() => {
     const handleValidation = (data: onValidationData) =>  {
@@ -73,6 +79,7 @@ export default function Board() {
     onPieceDrop,
     position: fen,
     id: currentRoom ?? undefined,
+    boardOrientation: 'black' as const
   };
 
   return (

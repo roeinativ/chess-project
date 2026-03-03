@@ -19,8 +19,10 @@ export type onNotValidMoveData = {
   valid: boolean,
 }
 
+
 export const gameSocket = {
-  joinGame: (username: string | null, currentRoom: string) => {
+
+  joinGame: (username: string | null, currentRoom: string | null) => {
     socket.emit("join_game", {
       username: username ?? "Guest",
       room: currentRoom,
@@ -57,4 +59,19 @@ export const gameSocket = {
   offNotValidMove: () => {
     socket.off("not_valid")
   },
+
+  onWaitingForGame: (callback: (data: OnJoinGameData) => void) => {
+    socket.on("start_game",callback)
+  },
+
+  offWaitingForGame: () => {
+    socket.off("start_game")
+  },
+
+  cancelMatchmaking: (currentRoom: string | null) => {
+    socket.emit("cancel_matchmaking", {
+      room: currentRoom,
+      sid: socket.id,
+    })
+  }
 };
