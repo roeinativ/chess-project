@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { roomContext } from "@/contexts/roomContext";
 import { colorContext } from "@/contexts/colorContext";
 import { gameOnContext } from "@/contexts/gameOnContext";
-
+import { Chessboard } from "react-chessboard";
 import {type onWaitingForGameData } from "@/hooks/game.socket";
 
 export default function Game() {
@@ -55,7 +55,25 @@ export default function Game() {
       <gameOnContext.Provider value={{gameOn,setGameOn}}>
 
         <div className="w-160 relative">
-        {isGameOver() && (
+
+          { waitingForGame && 
+          <div className="absolute inset-0 flex items-center justify-center bg-black/40 z-1">
+            <Card className="w-120">
+              <CardHeader>
+                <CardTitle>Waiting for opponent to join</CardTitle>
+                <p>.....</p>
+              </CardHeader>
+
+              <CardFooter className="flex justify-center">
+                <Button className="!bg-green-700" onClick={cancelMatchmaking}>Cancel</Button>
+              </CardFooter>
+            </Card>
+          </div>
+          }
+
+
+
+        {isGameOver() && 
           <div className="absolute inset-0 flex items-center justify-center bg-black/40 z-1">
             <Card className="w-120">
               <CardHeader>
@@ -70,23 +88,10 @@ export default function Game() {
               </CardFooter>
             </Card>
           </div>
-        )}
+        }
 
-
-
-          { waitingForGame && <Card>
-            <CardHeader>
-              <CardTitle>Waiting for opponent to join</CardTitle>
-              <p>.....</p>
-            </CardHeader>
-
-            <CardFooter className="flex justify-center">
-              <Button onClick={cancelMatchmaking}>Cancel</Button>
-            </CardFooter>
-          </Card>}
-
-
-          {!waitingForGame && <Board PresentWinner={(winner) => setWinner(winner)}/>}
+          {/*Render dummy board in background and not real board with socket listeners*/}
+          {!waitingForGame ? <Board PresentWinner={(winner) => setWinner(winner)}/> : <Chessboard/>}
         </div>
 
       </gameOnContext.Provider>    
