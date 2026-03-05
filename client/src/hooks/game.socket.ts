@@ -22,6 +22,11 @@ export type onWaitingForGameData = {
   color: 'white' | 'black',
 }
 
+export type onGameOverData = {
+  winner: "w" | "b" | "t",
+  fen: string,
+}
+
 
 export const gameSocket = {
 
@@ -42,6 +47,7 @@ export const gameSocket = {
   },
 
   makeMove: (
+    color: "white" | "black",
     room: string | null,
     username: string | null,
     from: string,
@@ -50,6 +56,7 @@ export const gameSocket = {
   ) => {
     socket.emit("move", {
       sid: socket.id,
+      color: color,
       room: room,
       username: username ?? "Guest",
       from: from,
@@ -87,5 +94,13 @@ export const gameSocket = {
 
   offOnMove: () => {
     socket.off("move")
-  }
+  },
+
+  onGameOver: (callback: (data: onGameOverData) => void) => {
+    socket.on("game_over",callback)
+  },
+
+  offGameOver: () => {
+    socket.off("game_over")
+  },
 };

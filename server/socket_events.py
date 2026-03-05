@@ -53,7 +53,7 @@ class SocketEvents:
                 sid_list = self.room_manager.get_room_sids(game_room)
                 color_list = self.board_manager.get_colors()
                 
-                self.board_manager.create_new_board()
+                self.board_manager.create_new_board(game_room)
                 
                 def send_start():
                     self.socketio.sleep(0.1)  
@@ -87,30 +87,65 @@ class SocketEvents:
         # Get piece move from player
         
         @self.socketio.on("move")
-        def handle_move(data):
+        def handle_move(data):            
             sid = data.get("sid")
+            color = data.get("color")
             room = data.get("room")
-            
-            print(f"When listening for move the room is {room}")
         
             square_from = data.get("from")
             square_to = data.get("to")
             
             move = square_from + square_to
                         
+            # Checks if move is valid
             if self.board_manager.valid_move(move,room):
                 
                 # Push current game virtual server board and get fen
                 self.board_manager.push_board(move,room)
                 fen = self.board_manager.get_board_fen(room)
                 
-                # Emit to current player
-                emit("is_move_valid", {"from": square_from, "to": square_to, "valid": True}, to=sid)
                 
-                # Emit to opponent
-                opponent_sid = self.room_manager.get_opponent_sid(room,sid)
-                emit("move", {"fen": fen}, to=opponent_sid)
-                print("Move valid sending to opponent")
+                # Check if checkmate or tie and change the winner
+                if self.board_manager.is_checkmate(room):
+                    winner = color
+                
+                elif self.board_manager.is_tie(room):
+                    winner = "t"
+                        
+                else:
+                    winner = None
+                
+                
+                if winner:
+                    emit("game_over", {"winner": winner, "fen": fen}, to=room)
+                    print(f"Winner: {winner}, emiting to room {room}")
+                    
+                    # Put players inside the socket room home in order to clear it for other players
+                    sid_list = self.room_manager.get_room_sids(room)
+                    sid_list_copy = list(sid_list)
+                    
+                    for player_sid in sid_list_copy:
+                        
+                        self.room_manager.remove_from_room(player_sid)
+                        leave_room(room,player_sid)
+                        
+                        self.room_manager.add_to_home(player_sid)
+                        join_room(self.home,player_sid)
+                    
+                    print(f"Home users {self.room_manager.get_home_users()}")
+                        
+                
+                
+                else:
+                    # If normal move emit to player:
+                    
+                    # Emit to current player
+                    emit("is_move_valid", {"from": square_from, "to": square_to, "valid": True}, to=sid)
+                    
+                    # Emit to opponent
+                    opponent_sid = self.room_manager.get_opponent_sid(room,sid)
+                    emit("move", {"fen": fen}, to=opponent_sid)
+                    print("Move valid sending to opponent")
                 
             else:
                 print("Move not valid")

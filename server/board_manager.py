@@ -7,18 +7,23 @@ class BoardManager:
         self.current_board = 0
         self.room_number = room_number
         self.colors = ['white','black']
-        
     
         
     def get_colors(self):
         random.shuffle(self.colors)
         return self.colors
 
-    def create_new_board(self):
-        self.current_board += 1
-        self.boards[self.current_board] = chess.Board()
+    def create_new_board(self,game_room):
         
-        return self.boards[self.current_board]
+        if game_room not in self.boards:
+            self.current_board += 1
+            self.boards[self.current_board] = chess.Board()
+            return self.boards[self.current_board]
+        
+        self.boards[game_room] = chess.Board()
+        return self.boards[game_room]
+            
+        
 
     def get_legal_moves(self,room_number):
         board = self.boards.get(room_number)
@@ -37,13 +42,14 @@ class BoardManager:
 
     def is_tie(self, room_number):
         board = self.boards.get(room_number)
-        if self.board.is_stalemate() or board.is_insufficient_material() or board.is_fivefold_repetition or board.is_seventyfive_moves():
+        if board.is_stalemate() or board.is_insufficient_material() or board.can_claim_threefold_repetition() or board.is_seventyfive_moves():
             return True
 
         return False
 
-    def is_checkmate(self):
-        if self.board.is_checkmate():
+    def is_checkmate(self,room_number):
+        board = self.boards.get(room_number)
+        if board.is_checkmate():
             return True
         
         return False

@@ -4,27 +4,30 @@ import { Chess } from "chess.js";
 import { userContext } from "@/contexts/userContext";
 import { roomContext } from "@/contexts/roomContext";
 import { colorContext } from "@/contexts/colorContext";
+import { gameOnContext } from "@/contexts/gameOnContext";
 import { gameSocket } from "@/hooks/game.socket";
 import type { Square } from "chess.js";
-import type { onMoveData, moveData } from "@/hooks/game.socket";
+import type { onMoveData, moveData, onGameOverData } from "@/hooks/game.socket";
 
+type onPieceDropArgs = {
+  sourceSquare: string;
+  targetSquare: string | null;
+};
 
-export default function Board() {
-  type onPieceDropArgs = {
-    sourceSquare: string;
-    targetSquare: string | null;
-  };
-  
+type BoardProps = {
+  PresentWinner: (winner: string) => void
+}
 
+export default function Board({ PresentWinner }: BoardProps) {
 
 
   const { username, setUserName } = useContext(userContext)
   const { currentRoom,setCurrentRoom } = useContext(roomContext)
   const { color, setColor } = useContext(colorContext)
+  const { gameOn, setGameOn } = useContext(gameOnContext)
 
-  const pieceColor = color == "white" ? "w" : "b"
 
-  
+  const [pieceColor,setPieceColor] = useState<"w" | "b">(color == "white" ? "w" : "b")
   const chessGameRef = useRef(new Chess());
   const chessGame = chessGameRef.current;
   const [fen, setFen] = useState(chessGame.fen());
@@ -32,7 +35,7 @@ export default function Board() {
 
 
   const makeMove = (from: string, to: string, promotion: string) => {
-    gameSocket.makeMove(currentRoom,username,from,to,promotion)
+    gameSocket.makeMove(color,currentRoom,username,from,to,promotion)
     console.log("Sent server move")
   }
 
@@ -43,7 +46,6 @@ export default function Board() {
         if (data.valid){
             setFen(chessGame.fen());
             setIsTurn(false)
-            console.log("Not your turn")
                 console.log(`Piece moved: \n 
                     From: ${data.from}\n
                     To: ${data.to}\n`);
@@ -79,7 +81,27 @@ export default function Board() {
     return () => {
       gameSocket.offOnMove()
     }
-  })
+  }, [])
+
+
+  // Listen for game over 
+
+  useEffect(() => {
+    const handleGameOver = (data: onGameOverData) => {
+      chessGameRef.current.load(data.fen)
+      setFen(data.fen)
+      setGameOn(false)
+      setCurrentRoom("Home")
+      PresentWinner(data.winner)
+      console.log(`Winner is ${data.winner}`)
+    }
+
+    gameSocket.onGameOver(handleGameOver)
+
+    return () => {
+      gameSocket.offGameOver()
+    }
+  }, [])
 
 
 
