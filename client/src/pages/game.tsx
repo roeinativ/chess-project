@@ -9,6 +9,7 @@ import { colorContext } from "@/contexts/colorContext";
 import { gameOnContext } from "@/contexts/gameOnContext";
 import { Chessboard } from "react-chessboard";
 import {type onWaitingForGameData } from "@/hooks/game.socket";
+import useSocket from "@/hooks/useSocket";
 
 export default function Game() {
   const [waitingForGame,setWaitingForGame] = useState<boolean>(true)
@@ -18,6 +19,8 @@ export default function Game() {
   const { currentRoom, setCurrentRoom } = useContext(roomContext)
   const { color, setColor } = useContext(colorContext)
   const [gameOn,setGameOn] = useState<boolean>(false)
+
+  const { joinGame } = useSocket()
 
   const navHome = () => {
     navigate("/")
@@ -31,6 +34,11 @@ export default function Game() {
 
   const isGameOver = () => {
     return !gameOn && !waitingForGame
+  }
+
+  const StartWaiting = () => {
+    joinGame()
+    setWaitingForGame(true)
   }
 
   // Listen for when game starts and waiting screen can be removed.
@@ -83,7 +91,7 @@ export default function Game() {
               <CardFooter className="flex justify-center text-lg">
                 <div className="flex gap-5">
                   <Button className="!bg-green-700" onClick={navHome}>Return to home</Button>
-                  <Button className="!bg-green-700">New Game</Button>
+                  <Button onClick={StartWaiting} className="!bg-green-700">New Game</Button>
                 </div>
               </CardFooter>
             </Card>

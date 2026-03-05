@@ -56,7 +56,7 @@ class SocketEvents:
                 self.board_manager.create_new_board(game_room)
                 
                 def send_start():
-                    self.socketio.sleep(0.1)  
+                    self.socketio.sleep(0.3)  
                     self.socketio.emit("start_game", {"room": game_room, "color": color_list[0]}, to=sid_list[0])
                     self.socketio.emit("start_game", {"room": game_room, "color": color_list[1]}, to=sid_list[1])
         
