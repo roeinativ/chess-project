@@ -94,8 +94,14 @@ class SocketEvents:
         
             square_from = data.get("from")
             square_to = data.get("to")
+            promotion = data.get("promotion")
+            print(f"Promotion is {promotion}")
             
             move = square_from + square_to
+            
+            if promotion:
+                move = move + promotion
+                print(f"New move is {move}")
                         
             # Checks if move is valid
             if self.board_manager.valid_move(move,room):

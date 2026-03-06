@@ -1,4 +1,5 @@
 import { socket } from "./socket";
+import { Chess } from "chess.js";
 
 export type OnJoinGameData = {
   username: string;
@@ -26,6 +27,14 @@ export type onGameOverData = {
   winner: "w" | "b" | "t",
   fen: string,
 }
+
+
+export type onPieceDropArgs = {
+  sourceSquare: string,
+  targetSquare: string | null,
+  piece: { pieceType: string },
+};
+
 
 
 export const gameSocket = {
@@ -103,4 +112,12 @@ export const gameSocket = {
   offGameOver: () => {
     socket.off("game_over")
   },
+
+
+ 
+
+
+
+
+
 };

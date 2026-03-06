@@ -13,17 +13,9 @@ class BoardManager:
         random.shuffle(self.colors)
         return self.colors
 
-    def create_new_board(self,game_room):
-        
-        if game_room not in self.boards:
-            self.current_board += 1
-            self.boards[self.current_board] = chess.Board()
-            return self.boards[self.current_board]
-        
-        self.boards[game_room] = chess.Board()
-        return self.boards[game_room]
-            
-        
+    def create_new_board(self, game_room):
+      self.boards[game_room] = chess.Board()
+      return self.boards[game_room]
 
     def get_legal_moves(self,room_number):
         board = self.boards.get(room_number)
@@ -55,7 +47,7 @@ class BoardManager:
         return False
     
     def push_board(self,move,room_number):
-        self.boards[room_number].push_san(move)
+        self.boards[room_number].push_uci(move)
         
     def get_board_fen(self,room_number):
         board = self.boards[room_number]
