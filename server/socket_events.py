@@ -1,18 +1,26 @@
 from flask_socketio import emit, join_room, leave_room
 
 class SocketEvents:
-    def __init__(self,socketio, room_manager,board_manager):
+    def __init__(self,socketio, room_manager, board_manager, signed_in_clients):
         self.socketio = socketio
         self.room_manager = room_manager
         self.board_manager = board_manager
+        self.signed_in_clients = signed_in_clients
         self.home = room_manager.get_home()
         self.register()
         
     def register(self):
         
         @self.socketio.on("connect")
-        def handle_connect():
+        def handle_connect():                   
             print("client connected")
+            
+        @self.socketio.on("update_connection")
+        def handle_update_connection(data):
+            new_sid = data.get("new_sid")
+            username = data.get("username")
+            
+            self.signed_in_clients.update_user(username,new_sid)
             
         @self.socketio.on("join_home")
         def handle_join(data):
@@ -27,6 +35,7 @@ class SocketEvents:
             
             emit("join_home", {"username":username, "room":self.home}, to=sid)
             print(f"Sending to {sid} join home emit")
+                
             
         @self.socketio.on("join_game")
         def handle_join_game(data):

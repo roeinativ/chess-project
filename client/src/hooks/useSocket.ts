@@ -57,10 +57,7 @@ export default function useSocket() {
     gameSocket.joinGame(username, currentRoom);
   };
 
-  // Send server your move
-
-
-
-
   return { joinGame: joinGame };
 }
+
+

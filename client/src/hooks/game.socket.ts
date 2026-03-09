@@ -1,5 +1,4 @@
 import { socket } from "./socket";
-import { Chess } from "chess.js";
 
 export type OnJoinGameData = {
   username: string;

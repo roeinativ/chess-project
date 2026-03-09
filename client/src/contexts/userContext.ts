@@ -1,11 +1,12 @@
 import { createContext } from "react";
 
 type userContextType = {
-    username: string | null,
-    setUserName: React.Dispatch<React.SetStateAction<string | null>>,
+    username: string,
+    setUserName: React.Dispatch<React.SetStateAction<string>>,
 }
 
 export const userContext = createContext<userContextType>({
-    username: null,
+    username: '',
     setUserName: () => {},
 })
+
