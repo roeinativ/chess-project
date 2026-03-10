@@ -1,4 +1,5 @@
 from flask_socketio import emit, join_room, leave_room
+from flask import request
 
 class SocketEvents:
     def __init__(self,socketio, room_manager, board_manager, signed_in_clients):
@@ -12,8 +13,9 @@ class SocketEvents:
     def register(self):
         
         @self.socketio.on("connect")
-        def handle_connect():                   
-            print("client connected")
+        def handle_connect():
+            sid = request.sid                   
+            print(f"client connected {sid}")
             
         @self.socketio.on("update_connection")
         def handle_update_connection(data):
@@ -21,6 +23,14 @@ class SocketEvents:
             username = data.get("username")
             
             self.signed_in_clients.update_user(username,new_sid)
+        
+        @self.socketio.on("disconnect")
+        def handle_disconnect():
+            sid = request.sid
+            self.room_manager.remove_from_room(sid)
+            self.room_manager.remove_from_home(sid)
+            print("Removed client from current room")
+            
             
         @self.socketio.on("join_home")
         def handle_join(data):

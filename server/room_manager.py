@@ -21,11 +21,15 @@ class RoomManager:
 
         if len(self.rooms[self.current_room]) == self.MAX_PLAYERS_IN_ROOM:
             return True
-    
+
         return False
     
     def add_to_home(self,sid):
         self.home_users.append(sid)
+        
+    def remove_from_home(self,sid):
+        if sid in self.home_users:
+            self.home_users.remove(sid)
         
     def find_room(self):
         if self.current_room not in self.rooms:
