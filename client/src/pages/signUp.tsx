@@ -1,5 +1,6 @@
 import { Input } from "@/components/ui/input";
 import { useState, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Card,
   CardAction,
@@ -10,12 +11,19 @@ import {
 import { Button } from "@/components/ui/button";
 import { socket } from "@/hooks/socket";
 import { userContext } from "@/contexts/userContext";
-import { setStoredUsername } from "@/hooks/storeUserName";
 
 export default function SignUpPage() {
   const BASE = "http://localhost:5555";
-  const [enter_username, setEnterUsername] = useState<string>("");
+  const [enter_username, setEnterUsername] = useState<string>('');
+  const [password,setPassword] = useState<string>('')
   const { username, setUserName } = useContext(userContext);
+
+  const navigate = useNavigate();
+
+  const navSignIn = () => {
+    navigate("/sign-in");
+  };
+
 
   const signUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,20 +36,21 @@ export default function SignUpPage() {
         },
         body: JSON.stringify({
           username: enter_username,
+          password: password,
           sid: socket.id,
         }),
       });
 
       const data = await res.json();
-      const message = data[0]
+      console.log(data);
 
       if (res.ok) {
-        setUserName(message.username);
-        setStoredUsername(message.username);
+        navSignIn()
       }
 
-      console.log(data);
-    } catch (error) {
+    }
+     
+    catch (error) {
       console.log(error);
     }
   };
@@ -66,6 +75,14 @@ export default function SignUpPage() {
               placeholder="Enter username"
               value={enter_username}
               onChange={(e) => setEnterUsername(e.target.value)}
+            />
+
+            <Input 
+              type="password"
+              placeholder="Enter password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+
             />
 
             <Button

@@ -3,9 +3,13 @@ import { useContext } from "react";
 import useSocket from "@/hooks/useSocket";
 import { Button } from "@/components/ui/button";
 import { userContext } from "@/contexts/userContext";
+import { signedInContext } from "@/contexts/signedInContext";
+import { removeStoredUsername } from "@/hooks/storeUserName";
+import { socket } from "@/hooks/socket";
 
 export default function HomePage() {
   const { username, setUserName} = useContext(userContext)
+  const { signedIn,setSignedIn } = useContext(signedInContext)
 
   const navigate = useNavigate();
 
@@ -21,10 +25,23 @@ export default function HomePage() {
     navGame();
   };
 
+  const signOut = () => {
+    socket.emit("sign_out")
+    setSignedIn(false)
+    removeStoredUsername()
+    console.log("Emited sign out")
+  }
+
   return (
     <>
       <h1>Welcome to chess games</h1>
-      <Button onClick={enterGame}>Join Game</Button>
+      <div className="flex justify-center gap-5">      
+        <Button onClick={enterGame} className="!bg-green-700">Join Game</Button>
+        
+        { signedIn &&
+        <Button onClick={signOut} className="!bg-green-700">Sign out</Button>}
+      </div>
+
     </>
   );
 }

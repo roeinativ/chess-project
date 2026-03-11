@@ -5,3 +5,7 @@ export const setStoredUsername = (username: string) => {
 export const getStoredUsername = () => {
     return localStorage.getItem("username") ?? "Guest";
 };
+
+export const removeStoredUsername = () => {
+    return localStorage.removeItem("username")
+}

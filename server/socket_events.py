@@ -23,6 +23,11 @@ class SocketEvents:
             username = data.get("username")
             
             self.signed_in_clients.update_user(username,new_sid)
+            
+        @self.socketio.on("sign_out")
+        def handle_sign_out():
+            sid = request.sid
+            self.signed_in_clients.remove_user(sid)
         
         @self.socketio.on("disconnect")
         def handle_disconnect():

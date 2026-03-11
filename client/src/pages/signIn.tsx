@@ -1,13 +1,26 @@
-import { useState } from "react"
+import { useState,useContext } from "react"
 import { socket } from "@/hooks/socket"
 import { Card, CardAction, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { userContext } from "@/contexts/userContext"
+import { setStoredUsername } from "@/hooks/storeUserName"
+import { useNavigate } from "react-router-dom"
+import { signedInContext } from "@/contexts/signedInContext"
 
 export default function SignInPage(){
     const BASE = "http://localhost:5555"
 
-    const [username,setUsername] = useState('')
+    const [enterUsername,setEnterUsername] = useState('')
+    const [password,setPassword] = useState('')
+    const { username, setUserName } = useContext(userContext)
+    const { signedIn, setSignedIn } = useContext(signedInContext)
+
+    const navigate = useNavigate();
+
+    const navHome = () => {
+        navigate("/");
+    };
 
     const signIn = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -19,13 +32,21 @@ export default function SignInPage(){
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    username: username,
+                    username: enterUsername,
+                    password: password,
                     sid: socket.id
                 })
             })
 
             const data = await res.json()
             console.log(data)
+
+            if (res.ok) {
+                setSignedIn(true)
+                setUserName(data.username)
+                setStoredUsername(data.username)
+                navHome()
+            }
         }
 
         catch (error) {
@@ -51,8 +72,15 @@ export default function SignInPage(){
                         <Input
                             type="text"
                             placeholder="Enter username"
-                            value={username}
-                            onChange={(e) => setUsername(e.target.value)} 
+                            value={enterUsername}
+                            onChange={(e) => setEnterUsername(e.target.value)} 
+                        />
+
+                        <Input 
+                            type="password"
+                            placeholder="Enter password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
                         />
 
                         <Button
