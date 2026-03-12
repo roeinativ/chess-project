@@ -10,12 +10,17 @@ socket.on("connect", () => {
 
     const username = getStoredUsername()
     console.log(`Current stored username is ${username}`)
+
+            
+    socket.emit("join_home", {
+        username: username,
+    })
     
     if (username !== "Guest"){
         socket.emit("update_connection", {
             username: username,
-            new_sid: socket.id
         })
+
         console.log("Emited update connection")
     }
 })

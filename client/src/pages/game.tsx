@@ -85,7 +85,7 @@ export default function Game() {
           <div className="absolute inset-0 flex items-center justify-center bg-black/40 z-1">
             <Card className="w-120">
               <CardHeader>
-                <CardTitle className="text-2xl"> {winner === "white" || winner === "black" ? `${winner} has won the game` : "Tie"} </CardTitle>
+                <CardTitle className="text-2xl"> {winner === "white" || winner === "black" ? `${winner.charAt(0).toUpperCase() + winner.slice(1)} has won the game` : "Tie"} </CardTitle>
               </CardHeader>
 
               <CardFooter className="flex justify-center text-lg">

@@ -20,7 +20,6 @@ class Routes:
             print(data)
             username = data["username"]
             password = data["password"]
-            sid = data["sid"]
 
             found_user = Users.query.filter_by(name=username).first()
 
@@ -35,10 +34,6 @@ class Routes:
             db.session.add(new_user)
             db.session.commit()
 
-            user = Users.query.filter_by(name=username).first()
-            user_id = user.id
-            self.signed_in_clients.add_user(sid, user_id)
-
             print(f"Added user: {username}")
 
             return jsonify({"message": f"Added new user {username}", "username": username}), 200
@@ -51,7 +46,6 @@ class Routes:
 
             username = data["username"]
             password = data["password"]
-            sid = data["sid"]
 
             found_user = Users.query.filter_by(name=username).first()
 
@@ -63,9 +57,5 @@ class Routes:
                 print("Wrong password")
                 return jsonify({"message": "Wrong password"}), 400
 
-            user = Users.query.filter_by(name=username).first()
-            user_id = user.id
-
-            self.signed_in_clients.add_user(sid, user_id)
             print(f"User logged in: {username}")
             return jsonify({"username": username}), 200

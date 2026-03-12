@@ -7,9 +7,9 @@ import { userContext } from "@/contexts/userContext"
 import { setStoredUsername } from "@/hooks/storeUserName"
 import { useNavigate } from "react-router-dom"
 import { signedInContext } from "@/contexts/signedInContext"
+import { signInFetch } from "@/services/signInFetch"
 
 export default function SignInPage(){
-    const BASE = "http://localhost:5555"
 
     const [enterUsername,setEnterUsername] = useState('')
     const [password,setPassword] = useState('')
@@ -22,31 +22,28 @@ export default function SignInPage(){
         navigate("/");
     };
 
+
+    const emitSignIn = (username: string) => {
+        socket.emit("sign_in", {
+            username: username,
+        })
+    }
+
+
     const signIn = async (e: React.FormEvent) => {
         e.preventDefault()
+    
+
 
         try{
-            const res = await fetch(`${BASE}/signIn`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    username: enterUsername,
-                    password: password,
-                    sid: socket.id
-                })
-            })
+            const data = await signInFetch(enterUsername,password)
 
-            const data = await res.json()
-            console.log(data)
+            setSignedIn(true)
+            setUserName(data.username)
+            setStoredUsername(data.username)
+            emitSignIn(data.username)
+            navHome()
 
-            if (res.ok) {
-                setSignedIn(true)
-                setUserName(data.username)
-                setStoredUsername(data.username)
-                navHome()
-            }
         }
 
         catch (error) {
@@ -86,7 +83,6 @@ export default function SignInPage(){
                         <Button
                             type="submit"
                             value="Submit" 
-                            onClick={() => console.log("Submited")}
                             className="!bg-green-700"
                         >Submit</Button>
                     </div>

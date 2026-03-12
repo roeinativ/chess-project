@@ -1,5 +1,6 @@
 from flask_socketio import emit, join_room, leave_room
 from flask import request
+from users import Users
 
 class SocketEvents:
     def __init__(self,socketio, room_manager, board_manager, signed_in_clients):
@@ -19,10 +20,21 @@ class SocketEvents:
             
         @self.socketio.on("update_connection")
         def handle_update_connection(data):
-            new_sid = data.get("new_sid")
+            new_sid = request.sid
             username = data.get("username")
             
             self.signed_in_clients.update_user(username,new_sid)
+            
+            
+        @self.socketio.on("sign_in")
+        def handle_sign_in(data):
+            username = data.get("username")
+            sid = request.sid
+            
+            user = Users.query.filter_by(name=username).first()
+            user_id = user.id
+            
+            self.signed_in_clients.add_user(sid,user_id)
             
         @self.socketio.on("sign_out")
         def handle_sign_out():
@@ -34,14 +46,15 @@ class SocketEvents:
             sid = request.sid
             self.room_manager.remove_from_room(sid)
             self.room_manager.remove_from_home(sid)
+            leave_room(sid)
             print("Removed client from current room")
             
             
         @self.socketio.on("join_home")
-        def handle_join(data):
+        def handle_join_home(data):
             self.home = self.room_manager.get_home()
             username = data.get("username")
-            sid = data.get("sid")
+            sid = request.sid
             
             join_room(self.home)
             self.room_manager.add_to_home(sid)
@@ -58,9 +71,8 @@ class SocketEvents:
             
             username = data.get("username")
             room = data.get("room")
-            sid = data.get("sid")
+            sid = request.sid
             
-            leave_room(room)
             game_room = self.room_manager.find_room()
             if self.room_manager.add_to_game_room(sid):
                 start_game = True
@@ -91,7 +103,7 @@ class SocketEvents:
         @self.socketio.on("cancel_matchmaking")
         def handle_cancel_matchmaking(data):
             room = data.get("room")
-            sid = data.get("sid")
+            sid = request.sid
             
             # Leave the current room
             self.room_manager.remove_from_room(sid)
@@ -112,7 +124,7 @@ class SocketEvents:
         
         @self.socketio.on("move")
         def handle_move(data):            
-            sid = data.get("sid")
+            sid = request.sid
             color = data.get("color")
             room = data.get("room")
         

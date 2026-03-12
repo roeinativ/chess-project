@@ -9,11 +9,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { socket } from "@/hooks/socket";
 import { userContext } from "@/contexts/userContext";
+import { signUpFetch } from "@/services/signUpFetch";
 
 export default function SignUpPage() {
-  const BASE = "http://localhost:5555";
   const [enter_username, setEnterUsername] = useState<string>('');
   const [password,setPassword] = useState<string>('')
   const { username, setUserName } = useContext(userContext);
@@ -29,25 +28,8 @@ export default function SignUpPage() {
     e.preventDefault();
 
     try {
-      const res = await fetch(`${BASE}/signUp`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          username: enter_username,
-          password: password,
-          sid: socket.id,
-        }),
-      });
-
-      const data = await res.json();
-      console.log(data);
-
-      if (res.ok) {
-        navSignIn()
-      }
-
+      const data = await signUpFetch(enter_username,password)
+      navSignIn()
     }
      
     catch (error) {

@@ -5,23 +5,13 @@ import { userContext } from "@/contexts/userContext";
 import { roomContext } from "@/contexts/roomContext";
 import { socket } from "./socket";
 
-const joined_home = { current: false }
+
 
 export default function useSocket() {
   const { username, setUserName } = useContext(userContext)
   const { currentRoom, setCurrentRoom } = useContext(roomContext) 
 
-  // Join home once when connecting
-  useEffect(() => {
-    const handleConnect = () => {
-      if (!joined_home.current) {
-        homeSocket.joinHome(username);
-        joined_home.current = true;
-      }
-    }
 
-    socket.once("connect", handleConnect);
-  }, []);
 
   // Handle join home 
   useEffect(() => {

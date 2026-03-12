@@ -42,7 +42,6 @@ export const gameSocket = {
     socket.emit("join_game", {
       username: username ?? "Guest",
       room: currentRoom,
-      sid: socket.id,
     });
   },
 
@@ -63,7 +62,6 @@ export const gameSocket = {
     promotion: string,
   ) => {
     socket.emit("move", {
-      sid: socket.id,
       color: color,
       room: room,
       username: username ?? "Guest",
@@ -92,7 +90,6 @@ export const gameSocket = {
   cancelMatchmaking: (currentRoom: string | null) => {
     socket.emit("cancel_matchmaking", {
       room: currentRoom,
-      sid: socket.id,
     })
   },
 

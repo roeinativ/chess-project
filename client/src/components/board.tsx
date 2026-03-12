@@ -6,7 +6,7 @@ import { roomContext } from "@/contexts/roomContext";
 import { colorContext } from "@/contexts/colorContext";
 import { gameOnContext } from "@/contexts/gameOnContext";
 import { gameSocket } from "@/hooks/game.socket";
-import type { PieceSymbol, Square } from "chess.js";
+import type { Square } from "chess.js";
 import type { onPieceDropArgs } from "@/hooks/game.socket";
 import { useChessGame } from "@/hooks/listenForMoves";
 
@@ -199,7 +199,7 @@ function onSquareClick({ square, piece }: SquareHandlerArgs) {
 
   if (!moveFrom && piece && piece.pieceType[0] === pieceColor) {
     const moves = chessGame.moves({ square: square as Square, verbose: true });
-    if (moves.length === 0) return;
+    if (moves.length === 0) return
 
     const newSquares: Record<string, React.CSSProperties> = {};
     for (const move of moves) {
@@ -234,11 +234,16 @@ function onSquareClick({ square, piece }: SquareHandlerArgs) {
     let move = null;
     try {
       move = chessGame.move({ from: moveFrom, to: square, promotion: "" });
-    } catch {
+    } 
+    
+    catch {
       const moves = chessGame.moves({ square: square as Square, verbose: true });
+      
       if (moves.length > 0 && piece?.pieceType[0] === pieceColor) {
         setMoveFrom(square);
-      } else {
+      } 
+      
+      else {
         setMoveFrom('');
         setOptionSquares({});
       }
