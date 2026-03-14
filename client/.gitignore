@@ -22,4 +22,4 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-stockfish-windows-x86-64-avx2.exe
+server/engines/stockfish-windows-x86-64-avx2.exe
