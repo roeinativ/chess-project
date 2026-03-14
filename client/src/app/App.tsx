@@ -4,6 +4,7 @@ import { userContext } from "@/contexts/userContext";
 import { roomContext } from "@/contexts/roomContext";
 import { colorContext } from "@/contexts/colorContext";
 import { signedInContext } from "@/contexts/signedInContext";
+import { modeContext } from "@/contexts/modeContext";
 import { useState } from "react";
 import { socket } from "@/hooks/socket";
 
@@ -12,6 +13,7 @@ export default function App() {
   const [currentRoom, setCurrentRoom] = useState<string | null>(null)
   const [color,setColor] = useState<'white' | 'black'>('white')
   const [signedIn,setSignedIn] = useState<boolean>(username == "Guest" ? false : true)
+  const [mode,setMode] = useState<'PVP' | 'PVE' | null>(null)
 
 
 
@@ -23,7 +25,9 @@ export default function App() {
         <roomContext.Provider value={{currentRoom,setCurrentRoom}}>
           <colorContext.Provider value={{color,setColor}}>
             <signedInContext.Provider value={{signedIn,setSignedIn}}>
-              <Router />
+              <modeContext.Provider value={{mode,setMode}}>
+                <Router />
+              </modeContext.Provider>
             </signedInContext.Provider>
           </colorContext.Provider>
         </roomContext.Provider>

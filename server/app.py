@@ -1,13 +1,15 @@
 from flask import Flask
 from flask_cors import CORS
 from flask_socketio import SocketIO
-from room_manager import RoomManager
-from board_manager import BoardManager
-from socket_events import SocketEvents
-from signed_in_clients import SignedInClients
-from routes import Routes
-from users import db
+from managers.room_manager import RoomManager
+from managers.board_manager import BoardManager
+from sockets.socket_events import SocketEvents
+from managers.signed_in_clients import SignedInClients
+from api.routes import Routes
+from models.users import db
+from engines.chess_engine import ChessEngine
 import logging
+
 
 
 log = logging.getLogger("werkzeug")
@@ -22,11 +24,13 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db.init_app(app)
 
+chess_engine = ChessEngine()
 signed_in_clients = SignedInClients()
 room_manager = RoomManager()
 board_manager = BoardManager(1)
-socket_events = SocketEvents(socketio, room_manager, board_manager, signed_in_clients)
+socket_events = SocketEvents(socketio, room_manager, board_manager, signed_in_clients,chess_engine)
 routes = Routes(app,signed_in_clients)
+
 
 
 

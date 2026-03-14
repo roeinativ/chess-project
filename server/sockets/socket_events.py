@@ -1,14 +1,16 @@
 from flask_socketio import emit, join_room, leave_room
 from flask import request
-from users import Users
+from models.users import Users
+from models.games import GameHistory
 
 class SocketEvents:
-    def __init__(self,socketio, room_manager, board_manager, signed_in_clients):
+    def __init__(self,socketio, room_manager, board_manager, signed_in_clients, stockfish):
         self.socketio = socketio
         self.room_manager = room_manager
         self.board_manager = board_manager
         self.signed_in_clients = signed_in_clients
         self.home = room_manager.get_home()
+        self.stockfish = stockfish
         self.register()
         
     def register(self):
@@ -70,11 +72,11 @@ class SocketEvents:
             start_game = False
             
             username = data.get("username")
-            room = data.get("room")
+            mode = data.get("mode")
             sid = request.sid
             
-            game_room = self.room_manager.find_room()
-            if self.room_manager.add_to_game_room(sid):
+            game_room = self.room_manager.find_room(mode)
+            if self.room_manager.add_to_game_room(sid,mode):
                 start_game = True
                 
             join_room(game_room)
@@ -87,18 +89,34 @@ class SocketEvents:
             
             if start_game:
                 sid_list = self.room_manager.get_room_sids(game_room)
+                number_of_players = len(sid_list)
                 color_list = self.board_manager.get_colors()
                 
                 self.board_manager.create_new_board(game_room)
                 
                 def send_start():
-                    self.socketio.sleep(0.3)  
-                    self.socketio.emit("start_game", {"room": game_room, "color": color_list[0]}, to=sid_list[0])
-                    self.socketio.emit("start_game", {"room": game_room, "color": color_list[1]}, to=sid_list[1])
+                    self.socketio.sleep(0.3) 
+                    for i in range(number_of_players): 
+                        color = color_list[i]
+                        self.socketio.emit("start_game", {"room": game_room, "color": color}, to=sid_list[i])
         
                 self.socketio.start_background_task(send_start)
-                    
+                
                 print(f"Room number: {game_room}, start the game")
+                
+                # Tell stockfish bot to begin the game if he is white
+                
+                if mode == "PVE" and color_list[0] == 'black':
+                    
+                    fen = self.board_manager.get_board_fen(game_room)
+                    engine_move = self.stockfish.get_best_move(fen)
+                    self.board_manager.push_board(engine_move,game_room)
+                    fen = self.board_manager.get_board_fen(game_room)
+                    emit("move", {"fen": fen}, to=sid)
+                    
+                else:
+                    game_history = GameHistory()
+                    
             
         @self.socketio.on("cancel_matchmaking")
         def handle_cancel_matchmaking(data):
@@ -127,6 +145,7 @@ class SocketEvents:
             sid = request.sid
             color = data.get("color")
             room = data.get("room")
+            mode = data.get("mode")
         
             square_from = data.get("from")
             square_to = data.get("to")
@@ -163,22 +182,9 @@ class SocketEvents:
                     print(f"Winner: {winner}, emiting to room {room}")
                     
                     # Put players inside the socket room home in order to clear it for other players
-                    sid_list = self.room_manager.get_room_sids(room)
-                    sid_list_copy = list(sid_list)
-                    
-                    for player_sid in sid_list_copy:
-                        
-                        self.room_manager.remove_from_room(player_sid)
-                        leave_room(room,player_sid)
-                        
-                        self.room_manager.add_to_home(player_sid)
-                        join_room(self.home,player_sid)
-                    
-                    print(f"Home users {self.room_manager.get_home_users()}")
-                        
+                    leave_game(room)            
                 
-                
-                else:
+                elif mode == 'PVP':
                     # If normal move emit to player:
                     
                     # Emit to current player
@@ -188,7 +194,44 @@ class SocketEvents:
                     opponent_sid = self.room_manager.get_opponent_sid(room,sid)
                     emit("move", {"fen": fen}, to=opponent_sid)
                     print("Move valid sending to opponent")
+                     
+                else:                    
+                    emit("is_move_valid", {"from": square_from, "to": square_to, "valid": True}, to=sid)
+                    
+                    engine_move = self.stockfish.get_best_move(fen)
+                    self.board_manager.push_board(engine_move,room)
+                    fen = self.board_manager.get_board_fen(room)
+                    
+                    emit("move", {"fen": fen}, to=sid)
+                    
+                    
+                    # Checks if stockfish won
+                    
+                    if self.board_manager.is_checkmate(room):
+                        emit("game_over", {"winner": "engine", "fen": fen}, to=sid)
+                        leave_game(room)
+                    
+                    elif self.board_manager.is_tie(room):
+                        emit("game_over", {"winner": "t", "fen": fen}, to=sid)
+                        leave_game(room)
+                    
+                    
+                    
                 
             else:
                 print("Move not valid")
+        
+        
+        def leave_game(room):
+            sid_list = self.room_manager.get_room_sids(room)
+            sid_list_copy = list(sid_list)
             
+            for player_sid in sid_list_copy:
+                
+                self.room_manager.remove_from_room(player_sid)
+                leave_room(room,player_sid)
+                
+                self.room_manager.add_to_home(player_sid)
+                join_room(self.home,player_sid)
+            
+            print(f"Home users {self.room_manager.get_home_users()}")

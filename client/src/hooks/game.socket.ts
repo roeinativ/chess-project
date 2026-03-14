@@ -38,11 +38,12 @@ export type onPieceDropArgs = {
 
 export const gameSocket = {
 
-  joinGame: (username: string | null, currentRoom: string | null) => {
+  joinGame: (username: string | null, mode: 'PVP' | 'PVE' | null) => {
     socket.emit("join_game", {
       username: username ?? "Guest",
-      room: currentRoom,
+      mode: mode,
     });
+    console.log(`Mode is ${mode}`)
   },
 
   onJoinGame: (callback: (data: OnJoinGameData) => void) => {
@@ -60,6 +61,7 @@ export const gameSocket = {
     from: string,
     to: string,
     promotion: string,
+    mode: 'PVP' | 'PVE' | null,
   ) => {
     socket.emit("move", {
       color: color,
@@ -68,6 +70,7 @@ export const gameSocket = {
       from: from,
       to: to,
       promotion: promotion,
+      mode: mode,
     });
   },
 
@@ -76,7 +79,7 @@ export const gameSocket = {
   },
 
   offNotValidMove: () => {
-    socket.off("not_valid")
+    socket.off("is_move_valid")
   },
 
   onWaitingForGame: (callback: (data: onWaitingForGameData) => void) => {

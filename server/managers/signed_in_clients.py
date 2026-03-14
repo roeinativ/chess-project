@@ -1,4 +1,4 @@
-from users import Users
+from models.users import Users
 
 class SignedInClients():
     def __init__(self):

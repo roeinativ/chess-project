@@ -3,6 +3,7 @@ import { useContext } from "react";
 import useSocket from "@/hooks/useSocket";
 import { Button } from "@/components/ui/button";
 import { userContext } from "@/contexts/userContext";
+import { modeContext } from "@/contexts/modeContext";
 import { signedInContext } from "@/contexts/signedInContext";
 import { removeStoredUsername } from "@/hooks/storeUserName";
 import { socket } from "@/hooks/socket";
@@ -10,6 +11,9 @@ import { socket } from "@/hooks/socket";
 export default function HomePage() {
   const { username, setUserName} = useContext(userContext)
   const { signedIn,setSignedIn } = useContext(signedInContext)
+
+  const { mode, setMode } = useContext(modeContext)
+  
 
   const navigate = useNavigate();
 
@@ -20,10 +24,13 @@ export default function HomePage() {
   // Mount socket listeners
   const { joinGame } = useSocket();
 
-  const enterGame = () => {
-    joinGame();
+  const enterGame = (mode: 'PVP' | 'PVE') => {
+    setMode(mode)
+    joinGame(mode);
     navGame();
   };
+
+
 
   const signOut = () => {
     socket.emit("sign_out")
@@ -36,7 +43,9 @@ export default function HomePage() {
     <>
       <h1>Welcome to chess games</h1>
       <div className="flex justify-center gap-5">      
-        <Button onClick={enterGame} className="!bg-green-700">Join Game</Button>
+        <Button onClick={() => enterGame('PVP')} className="!bg-green-700">Play against player</Button>
+
+        <Button onClick={() => enterGame('PVE')} className="!bg-green-700">Play against computer</Button>
         
         { signedIn &&
         <Button onClick={signOut} className="!bg-green-700">Sign out</Button>}

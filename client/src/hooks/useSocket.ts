@@ -43,8 +43,8 @@ export default function useSocket() {
 
 
   // Send server to join a game
-  const joinGame = () => {
-    gameSocket.joinGame(username, currentRoom);
+  const joinGame = (mode: 'PVP' | 'PVE' | null) => {
+    gameSocket.joinGame(username, mode);
   };
 
   return { joinGame: joinGame };

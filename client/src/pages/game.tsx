@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { roomContext } from "@/contexts/roomContext";
 import { colorContext } from "@/contexts/colorContext";
 import { gameOnContext } from "@/contexts/gameOnContext";
+import { modeContext } from "@/contexts/modeContext";
 import { Chessboard } from "react-chessboard";
 import {type onWaitingForGameData } from "@/hooks/game.socket";
 import useSocket from "@/hooks/useSocket";
@@ -18,6 +19,8 @@ export default function Game() {
 
   const { currentRoom, setCurrentRoom } = useContext(roomContext)
   const { color, setColor } = useContext(colorContext)
+  const { mode, setMode } = useContext(modeContext)
+
   const [gameOn,setGameOn] = useState<boolean>(false)
 
   const { joinGame } = useSocket()
@@ -37,7 +40,7 @@ export default function Game() {
   }
 
   const StartWaiting = () => {
-    joinGame()
+    joinGame(mode)
     setWaitingForGame(true)
   }
 
@@ -85,7 +88,7 @@ export default function Game() {
           <div className="absolute inset-0 flex items-center justify-center bg-black/40 z-1">
             <Card className="w-120">
               <CardHeader>
-                <CardTitle className="text-2xl"> {winner === "white" || winner === "black" ? `${winner.charAt(0).toUpperCase() + winner.slice(1)} has won the game` : "Tie"} </CardTitle>
+                <CardTitle className="text-2xl"> {winner === "white" || winner === "black" || winner === "engine" ? `${winner.charAt(0).toUpperCase() + winner.slice(1)} has won the game` : "Tie"} </CardTitle>
               </CardHeader>
 
               <CardFooter className="flex justify-center text-lg">

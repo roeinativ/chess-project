@@ -5,6 +5,7 @@ import { userContext } from "@/contexts/userContext";
 import { roomContext } from "@/contexts/roomContext";
 import { colorContext } from "@/contexts/colorContext";
 import { gameOnContext } from "@/contexts/gameOnContext";
+import { modeContext } from "@/contexts/modeContext";
 import { gameSocket } from "@/hooks/game.socket";
 import type { Square } from "chess.js";
 import type { onPieceDropArgs } from "@/hooks/game.socket";
@@ -23,6 +24,7 @@ export default function Board({ PresentWinner }: BoardProps) {
   const { currentRoom,setCurrentRoom } = useContext(roomContext)
   const { color, setColor } = useContext(colorContext)
   const { gameOn, setGameOn } = useContext(gameOnContext)
+  const { mode, setMode } = useContext(modeContext)
 
   const [pieceColor,setPieceColor] = useState<"w" | "b">(color == "white" ? "w" : "b")
   const chessGameRef = useRef(new Chess());
@@ -54,7 +56,7 @@ export default function Board({ PresentWinner }: BoardProps) {
 
 
   const makeMove = (from: string, to: string, promotion: string) => {
-    gameSocket.makeMove(color,currentRoom,username,from,to,promotion)
+    gameSocket.makeMove(color,currentRoom,username,from,to,promotion,mode)
     console.log("Sent server move")
   }
 

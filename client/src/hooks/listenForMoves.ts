@@ -29,12 +29,15 @@ export function useChessGame({
       if (data.valid) {
         setFen(chessGameRef.current.fen());
         setIsTurn(false);
-      } else {
+      } 
+      
+      else {
         chessGameRef.current.undo();
       }
     };
 
     gameSocket.onNotValidMove(handleValidation);
+    
     return () => gameSocket.offNotValidMove();
   }, []);
 
@@ -56,9 +59,12 @@ export function useChessGame({
     const handleGameOver = (data: onGameOverData) => {
       chessGameRef.current.load(data.fen);
       setFen(data.fen);
-      setGameOn(false);
-      setCurrentRoom("Home");
-      PresentWinner(data.winner);
+
+      setTimeout(() => {
+        setGameOn(false);
+        setCurrentRoom("Home");
+        PresentWinner(data.winner);
+      }, 2000)
     };
 
     gameSocket.onGameOver(handleGameOver);
