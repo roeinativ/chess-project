@@ -52,3 +52,4 @@ class BoardManager:
     def get_board_fen(self,room_number):
         board = self.boards[room_number]
         return board.fen()
+    

@@ -2,6 +2,7 @@ from flask_socketio import emit, join_room, leave_room
 from flask import request
 from models.users import Users
 from models.games import GameHistory
+from datetime import datetime
 
 class SocketEvents:
     def __init__(self,socketio, room_manager, board_manager, signed_in_clients, stockfish):
@@ -11,6 +12,10 @@ class SocketEvents:
         self.signed_in_clients = signed_in_clients
         self.home = room_manager.get_home()
         self.stockfish = stockfish
+        self.players_time = {}
+        self.starting_time = 10000
+        self.current_turn = {}
+        self.current_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
         self.register()
         
     def register(self):
@@ -88,19 +93,30 @@ class SocketEvents:
             print(f"Home users: {self.room_manager.get_home_users()}\n Game rooms: {self.room_manager.get_rooms()}")
             
             if start_game:
+                
                 sid_list = self.room_manager.get_room_sids(game_room)
                 number_of_players = len(sid_list)
                 color_list = self.board_manager.get_colors()
                 
                 self.board_manager.create_new_board(game_room)
                 
+                
+                # Set time for players
+                if mode == "PVP":
+                    
+                    self.players_time[game_room] = [self.starting_time,self.starting_time]
+                    self.current_turn[game_room] = 0
+                    self.socketio.start_background_task(count_time, game_room)
+                
                 def send_start():
                     self.socketio.sleep(0.3) 
                     for i in range(number_of_players): 
                         color = color_list[i]
                         self.socketio.emit("start_game", {"room": game_room, "color": color}, to=sid_list[i])
+                        
         
                 self.socketio.start_background_task(send_start)
+                self.last_tick = datetime.now()
                 
                 print(f"Room number: {game_room}, start the game")
                 
@@ -114,8 +130,7 @@ class SocketEvents:
                     fen = self.board_manager.get_board_fen(game_room)
                     emit("move", {"fen": fen}, to=sid)
                     
-                else:
-                    game_history = GameHistory()
+
                     
             
         @self.socketio.on("cancel_matchmaking")
@@ -141,16 +156,19 @@ class SocketEvents:
         # Get piece move from player
         
         @self.socketio.on("move")
-        def handle_move(data):            
+        def handle_move(data):   
+                     
             sid = request.sid
             color = data.get("color")
             room = data.get("room")
-            mode = data.get("mode")
+            mode = data.get("mode")            
         
             square_from = data.get("from")
             square_to = data.get("to")
             promotion = data.get("promotion")
             print(f"Promotion is {promotion}")
+            
+            self.current_turn[room] = 1 - self.current_turn[room]
             
             move = square_from + square_to
             
@@ -164,6 +182,8 @@ class SocketEvents:
                 # Push current game virtual server board and get fen
                 self.board_manager.push_board(move,room)
                 fen = self.board_manager.get_board_fen(room)
+                self.current_fen = fen
+                print()
                 
                 
                 # Check if checkmate or tie and change the winner
@@ -213,13 +233,12 @@ class SocketEvents:
                     
                     elif self.board_manager.is_tie(room):
                         emit("game_over", {"winner": "t", "fen": fen}, to=sid)
-                        leave_game(room)
-                    
-                    
-                    
+                        leave_game(room)  
                 
             else:
                 print("Move not valid")
+                
+
         
         
         def leave_game(room):
@@ -235,3 +254,28 @@ class SocketEvents:
                 join_room(self.home,player_sid)
             
             print(f"Home users {self.room_manager.get_home_users()}")
+            
+            
+        def count_time(room):
+            winner = "white"
+            while room in self.players_time:
+                self.socketio.sleep(1)
+                current_player = self.current_turn[room]
+                self.players_time[room][current_player] -= 1000
+                
+                if self.players_time[room][current_player] <= 0:
+                    
+                    winner_index = 1 - current_player
+                    if winner_index == 1:
+                        winner = "black"
+                    
+                    self.socketio.emit("game_over", {"winner": winner, "fen": self.current_fen}, to=room)  
+                    print(f"Last fen: {self.current_fen}")   
+                    del self.players_time[room]
+                    del self.current_turn[room]
+                    break
+                
+                print(f"Time left {self.players_time[room][current_player]}")
+                
+                
+                

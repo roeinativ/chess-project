@@ -1,16 +1,19 @@
-import { useNavigate } from 'react-router-dom'
+import DigitalClock from "@/components/digitalClock"
+import { Button } from "@/components/ui/button"
+import { useState } from "react"
+
 
 export default function About() {
-    const navigate = useNavigate()
+    const [isTurn, setIsTurn] = useState<boolean>(true)
 
-    const navGame = () => {
-        navigate('/game')
+    const clockFunction = () => {
+        isTurn ? setIsTurn(false) : setIsTurn(true)
     }
 
     return (
         <>
-            <h1>This is about page</h1>
-            <button onClick={navGame}>Game page</button>
+            <DigitalClock isTurn={isTurn} pieceColor="b"/>
+            <Button onClick={clockFunction}>{isTurn ? "Stop" : "Resume"}</Button>
         </>
     )
 }

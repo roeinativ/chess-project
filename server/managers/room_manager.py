@@ -24,7 +24,7 @@ class RoomManager:
         self.home_users.remove(sid)
         self.rooms[self.current_room].append(sid)
 
-        if len(self.rooms[self.current_room]) == max_players:
+        if len(self.rooms[self.current_room]) == max_players:              
             return True
 
         return False

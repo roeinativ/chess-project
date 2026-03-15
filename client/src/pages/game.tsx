@@ -11,6 +11,9 @@ import { modeContext } from "@/contexts/modeContext";
 import { Chessboard } from "react-chessboard";
 import {type onWaitingForGameData } from "@/hooks/game.socket";
 import useSocket from "@/hooks/useSocket";
+import DigitalClock from "@/components/digitalClock";
+
+
 
 export default function Game() {
   const [waitingForGame,setWaitingForGame] = useState<boolean>(true)
@@ -23,6 +26,13 @@ export default function Game() {
 
   const [gameOn,setGameOn] = useState<boolean>(false)
 
+  const pieceColor = color === "white" ? "w" : "b"
+  const [isTurn, setIsTurn] = useState<boolean>(false)
+
+  useEffect(() => {
+    setIsTurn(color === "white")
+  }, [color])
+ 
   const { joinGame } = useSocket()
 
   const navHome = () => {
@@ -48,6 +58,7 @@ export default function Game() {
   useEffect(() => {
     const handleGameStart = (data: onWaitingForGameData) => {
       setColor(data.color)
+      console.log(`Color got from server is ${data.color}`)
       setWaitingForGame(false)
       setGameOn(true)
       console.log("Game started")
@@ -62,7 +73,7 @@ export default function Game() {
 
 
   return (
-    <>
+    <div className="min-h-screen">
       <gameOnContext.Provider value={{gameOn,setGameOn}}>
 
         <div className="w-160 relative">
@@ -102,11 +113,28 @@ export default function Game() {
         }
 
           {/*Render dummy board in background and not real board with socket listeners*/}
-          {!waitingForGame ? <Board PresentWinner={(winner) => setWinner(winner)}/> : <Chessboard/>}
+          {!waitingForGame ? (
+              <div className="flex gap-4 w-fit">
+                  <div className="relative w-160">
+                    <Board 
+                      PresentWinner={(winner) => setWinner(winner)} 
+                      isTurn={isTurn}
+                      setIsTurn={setIsTurn}
+                    />
+                  </div>
+
+                  <div className="flex flex-col justify-between">
+                    <DigitalClock isTurn={!isTurn} pieceColor={pieceColor === "w" ? "b" : "w"}/>
+                    <DigitalClock isTurn={isTurn} pieceColor={pieceColor === "w" ? "w" : "b"}/>
+                  </div>
+              </div>
+          ) : (
+              <Chessboard />
+          )}
         </div>
 
       </gameOnContext.Provider>    
 
-    </>
+    </div>
   );
 }

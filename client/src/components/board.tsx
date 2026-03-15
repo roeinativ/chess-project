@@ -16,21 +16,24 @@ import { useChessGame } from "@/hooks/listenForMoves";
 
 type BoardProps = {
   PresentWinner: (winner: string) => void
+  isTurn: boolean
+  setIsTurn: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-export default function Board({ PresentWinner }: BoardProps) {
+export default function Board({ PresentWinner, isTurn, setIsTurn}: BoardProps) {
 
   const { username, setUserName } = useContext(userContext)
   const { currentRoom,setCurrentRoom } = useContext(roomContext)
+
   const { color, setColor } = useContext(colorContext)
+  const [ pieceColor, setPieceColor ] = useState<"w" | "b">(color === "white" ? "w" : "b")
+
   const { gameOn, setGameOn } = useContext(gameOnContext)
   const { mode, setMode } = useContext(modeContext)
 
-  const [pieceColor,setPieceColor] = useState<"w" | "b">(color == "white" ? "w" : "b")
   const chessGameRef = useRef(new Chess());
   const chessGame = chessGameRef.current;
   const [fen, setFen] = useState(chessGame.fen());
-  const [isTurn,setIsTurn] = useState<boolean>(pieceColor == "w" ? true : false)
 
   const [showAnimations, setShowAnimations] = useState<boolean>(true)
   const [premoves, setPremoves] = useState<onPieceDropArgs[]>([])
