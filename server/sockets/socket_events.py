@@ -166,9 +166,11 @@ class SocketEvents:
             square_from = data.get("from")
             square_to = data.get("to")
             promotion = data.get("promotion")
-            print(f"Promotion is {promotion}")
             
-            self.current_turn[room] = 1 - self.current_turn[room]
+            
+            # Handle clock function
+            if mode == "PVP":
+                self.current_turn[room] = 1 - self.current_turn[room]
             
             move = square_from + square_to
             

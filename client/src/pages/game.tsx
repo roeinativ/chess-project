@@ -54,6 +54,10 @@ export default function Game() {
     setWaitingForGame(true)
   }
 
+  const isModePVP = () => {
+    return mode === "PVP"
+  }
+
   // Listen for when game starts and waiting screen can be removed.
   useEffect(() => {
     const handleGameStart = (data: onWaitingForGameData) => {
@@ -123,10 +127,13 @@ export default function Game() {
                     />
                   </div>
 
+                {isModePVP() &&
                   <div className="flex flex-col justify-between">
                     <DigitalClock isTurn={!isTurn} pieceColor={pieceColor === "w" ? "b" : "w"}/>
                     <DigitalClock isTurn={isTurn} pieceColor={pieceColor === "w" ? "w" : "b"}/>
-                  </div>
+                  </div>}
+                  
+
               </div>
           ) : (
               <Chessboard />
