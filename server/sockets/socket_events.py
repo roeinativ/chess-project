@@ -13,7 +13,7 @@ class SocketEvents:
         self.home = room_manager.get_home()
         self.stockfish = stockfish
         self.players_time = {}
-        self.starting_time = 10000
+        self.starting_time = 300000
         self.current_turn = {}
         self.current_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
         self.register()
@@ -270,12 +270,9 @@ class SocketEvents:
                         winner = "black"
                     
                     self.socketio.emit("game_over", {"winner": winner, "fen": self.current_fen}, to=room)  
-                    print(f"Last fen: {self.current_fen}")   
                     del self.players_time[room]
                     del self.current_turn[room]
                     break
-                
-                print(f"Time left {self.players_time[room][current_player]}")
                 
                 
                 

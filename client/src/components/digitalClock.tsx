@@ -9,7 +9,7 @@ type DigitalClockProps = {
 
 export default function DigitalClock({ isTurn, pieceColor }: DigitalClockProps) {
 
-    const [time, setTime] = useState(10)
+    const [time, setTime] = useState(300)
 
     useEffect(() => {
         if (!isTurn) return
