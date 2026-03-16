@@ -1,11 +1,11 @@
 export const setStoredUsername = (username: string) => {
-    localStorage.setItem("username", username);
+  localStorage.setItem("username", username);
 };
 
 export const getStoredUsername = () => {
-    return localStorage.getItem("username") ?? "Guest";
+  return localStorage.getItem("username") ?? "Guest";
 };
 
 export const removeStoredUsername = () => {
-    return localStorage.removeItem("username")
-}
+  return localStorage.removeItem("username");
+};

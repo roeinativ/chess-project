@@ -9,23 +9,25 @@ import { useState } from "react";
 import { socket } from "@/hooks/socket";
 
 export default function App() {
-  const [username, setUserName] = useState<string | null>(localStorage.getItem("username") ?? "Guest")
-  const [currentRoom, setCurrentRoom] = useState<string | null>(null)
-  const [color,setColor] = useState<'white' | 'black'>('white')
-  const [signedIn,setSignedIn] = useState<boolean>(username == "Guest" ? false : true)
-  const [mode,setMode] = useState<'PVP' | 'PVE' | null>(null)
+  const [username, setUserName] = useState<string | null>(
+    localStorage.getItem("username") ?? "Guest",
+  );
+  const [currentRoom, setCurrentRoom] = useState<string | null>(null);
+  const [color, setColor] = useState<"white" | "black">("white");
+  const [signedIn, setSignedIn] = useState<boolean>(
+    username == "Guest" ? false : true,
+  );
+  const [mode, setMode] = useState<"PVP" | "PVE" | null>(null);
 
-
-
-  socket.connect()
+  socket.connect();
 
   return (
     <>
-      <userContext.Provider value={{username, setUserName}}>
-        <roomContext.Provider value={{currentRoom,setCurrentRoom}}>
-          <colorContext.Provider value={{color,setColor}}>
-            <signedInContext.Provider value={{signedIn,setSignedIn}}>
-              <modeContext.Provider value={{mode,setMode}}>
+      <userContext.Provider value={{ username, setUserName }}>
+        <roomContext.Provider value={{ currentRoom, setCurrentRoom }}>
+          <colorContext.Provider value={{ color, setColor }}>
+            <signedInContext.Provider value={{ signedIn, setSignedIn }}>
+              <modeContext.Provider value={{ mode, setMode }}>
                 <Router />
               </modeContext.Provider>
             </signedInContext.Provider>

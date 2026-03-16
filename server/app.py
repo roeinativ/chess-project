@@ -11,7 +11,6 @@ from engines.chess_engine import ChessEngine
 import logging
 
 
-
 log = logging.getLogger("werkzeug")
 log.setLevel(logging.ERROR)
 
@@ -28,10 +27,10 @@ chess_engine = ChessEngine()
 signed_in_clients = SignedInClients()
 room_manager = RoomManager()
 board_manager = BoardManager(1)
-socket_events = SocketEvents(socketio, room_manager, board_manager, signed_in_clients,chess_engine)
-routes = Routes(app,signed_in_clients)
-
-
+socket_events = SocketEvents(
+    socketio, room_manager, board_manager, signed_in_clients, chess_engine
+)
+routes = Routes(app, signed_in_clients)
 
 
 if __name__ == "__main__":

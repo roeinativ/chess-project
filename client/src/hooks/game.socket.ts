@@ -1,15 +1,14 @@
 import { socket } from "./socket";
 
-import * as Types from '@/types/types'
+import * as Types from "@/types/types";
 
 export const gameSocket = {
-
-  joinGame: (username: string | null, mode: 'PVP' | 'PVE' | null) => {
+  joinGame: (username: string | null, mode: "PVP" | "PVE" | null) => {
     socket.emit("join_game", {
       username: username ?? "Guest",
       mode: mode,
     });
-    console.log(`Mode is ${mode}`)
+    console.log(`Mode is ${mode}`);
   },
 
   onJoinGame: (callback: (data: Types.OnJoinGameData) => void) => {
@@ -27,7 +26,7 @@ export const gameSocket = {
     from: string,
     to: string,
     promotion: string,
-    mode: 'PVP' | 'PVE' | null,
+    mode: "PVP" | "PVE" | null,
   ) => {
     socket.emit("move", {
       color: color,
@@ -41,62 +40,62 @@ export const gameSocket = {
   },
 
   onNotValidMove: (callback: (data: Types.MoveData) => void) => {
-    socket.on("is_move_valid", callback)
+    socket.on("is_move_valid", callback);
   },
 
   offNotValidMove: () => {
-    socket.off("is_move_valid")
+    socket.off("is_move_valid");
   },
 
   onWaitingForGame: (callback: (data: Types.OnWaitingForGameData) => void) => {
-    socket.on("start_game",callback)
+    socket.on("start_game", callback);
   },
 
   offWaitingForGame: () => {
-    socket.off("start_game")
+    socket.off("start_game");
   },
 
   cancelMatchmaking: (currentRoom: string | null) => {
     socket.emit("cancel_matchmaking", {
       room: currentRoom,
-    })
+    });
   },
 
-  onMove : (callback: (data: Types.OnMoveData) => void) => {
-    socket.on("move",callback)
+  onMove: (callback: (data: Types.OnMoveData) => void) => {
+    socket.on("move", callback);
   },
 
   offOnMove: () => {
-    socket.off("move")
+    socket.off("move");
   },
 
   onGameOver: (callback: (data: Types.OnGameOverData) => void) => {
-    socket.on("game_over",callback)
+    socket.on("game_over", callback);
   },
 
   offGameOver: () => {
-    socket.off("game_over")
+    socket.off("game_over");
   },
 
   resign: (color: "white" | "black", room: string | null) => {
     socket.emit("resign", {
       color: color,
-      room: room
-    })
+      room: room,
+    });
   },
 
   emitDraw: (room: string | null, status: string) => {
     socket.emit("draw", {
       room: room,
-      status: status
-    })
+      status: status,
+    });
   },
 
   listenForDraw: (callback: () => void) => {
-    socket.on("draw", callback)
+    socket.on("draw", callback);
   },
 
   offListenForDraw: () => {
-    socket.off("draw")
+    socket.off("draw");
   },
 };

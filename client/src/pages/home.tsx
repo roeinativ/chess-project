@@ -9,13 +9,10 @@ import { removeStoredUsername } from "@/hooks/storeUserName";
 import { socket } from "@/hooks/socket";
 
 export default function HomePage() {
-  const { username, setUserName} = useContext(userContext)
-  const { signedIn,setSignedIn } = useContext(signedInContext)
+  const { username, setUserName } = useContext(userContext);
+  const { signedIn, setSignedIn } = useContext(signedInContext);
 
-  const { mode, setMode } = useContext(modeContext)
-
-
-  
+  const { mode, setMode } = useContext(modeContext);
 
   const navigate = useNavigate();
 
@@ -26,33 +23,37 @@ export default function HomePage() {
   // Mount socket listeners
   const { joinGame } = useSocket();
 
-  const enterGame = (mode: 'PVP' | 'PVE') => {
-    setMode(mode)
+  const enterGame = (mode: "PVP" | "PVE") => {
+    setMode(mode);
     joinGame(mode);
     navGame();
   };
 
-
-
   const signOut = () => {
-    socket.emit("sign_out")
-    setSignedIn(false)
-    removeStoredUsername()
-    console.log("Emited sign out")
-  }
+    socket.emit("sign_out");
+    setSignedIn(false);
+    removeStoredUsername();
+    console.log("Emited sign out");
+  };
 
   return (
     <>
       <h1>Welcome to chess games</h1>
-      <div className="flex justify-center gap-5">      
-        <Button onClick={() => enterGame('PVP')} className="!bg-green-700">Play against player</Button>
+      <div className="flex justify-center gap-5">
+        <Button onClick={() => enterGame("PVP")} className="!bg-green-700">
+          Play against player
+        </Button>
 
-        <Button onClick={() => enterGame('PVE')} className="!bg-green-700">Play against computer</Button>
-        
-        { signedIn &&
-        <Button onClick={signOut} className="!bg-green-700">Sign out</Button>}
+        <Button onClick={() => enterGame("PVE")} className="!bg-green-700">
+          Play against computer
+        </Button>
+
+        {signedIn && (
+          <Button onClick={signOut} className="!bg-green-700">
+            Sign out
+          </Button>
+        )}
       </div>
-
     </>
   );
 }

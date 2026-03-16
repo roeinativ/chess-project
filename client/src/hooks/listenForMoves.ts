@@ -1,16 +1,16 @@
 import { Chess } from "chess.js";
 import { useEffect } from "react";
 import { gameSocket } from "./game.socket";
-import * as Types from "@/types/types"
+import * as Types from "@/types/types";
 
 type UseChessGameParams = {
-chessGameRef: React.RefObject<Chess>;
-setFen: (fen: string) => void;
-setIsTurn: (val: boolean) => void;
-setGameOn: (val: boolean) => void;
-setCurrentRoom: (room: string) => void;
-setEndingMessage: (endingMessage: string | null) => void;
-handlePreMoves: () => void;
+  chessGameRef: React.RefObject<Chess>;
+  setFen: (fen: string) => void;
+  setIsTurn: (val: boolean) => void;
+  setGameOn: (val: boolean) => void;
+  setCurrentRoom: (room: string) => void;
+  setEndingMessage: (endingMessage: string | null) => void;
+  handlePreMoves: () => void;
 };
 
 export function useChessGame({
@@ -22,22 +22,19 @@ export function useChessGame({
   setEndingMessage,
   handlePreMoves,
 }: UseChessGameParams) {
-
-// Listen for move validation
+  // Listen for move validation
   useEffect(() => {
     const handleValidation = (data: Types.MoveData) => {
       if (data.valid) {
         setFen(chessGameRef.current.fen());
         setIsTurn(false);
-      } 
-      
-      else {
+      } else {
         chessGameRef.current.undo();
       }
     };
 
     gameSocket.onNotValidMove(handleValidation);
-    
+
     return () => gameSocket.offNotValidMove();
   }, []);
 
@@ -64,7 +61,7 @@ export function useChessGame({
         setGameOn(false);
         setCurrentRoom("Home");
         setEndingMessage(data.message);
-      }, 2000)
+      }, 2000);
     };
 
     gameSocket.onGameOver(handleGameOver);

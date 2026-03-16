@@ -12,7 +12,7 @@ export default function Router() {
         <Route path="/" element={<HomePage />} />
         <Route path="/game" element={<Game />} />
         <Route path="/about" element={<About />} />
-        <Route path="/sign-up" element={<SignUpPage />}/>
+        <Route path="/sign-up" element={<SignUpPage />} />
         <Route path="/sign-in" element={<SignInPage />} />
       </Routes>
     </BrowserRouter>

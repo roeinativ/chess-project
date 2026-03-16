@@ -13,8 +13,8 @@ import { userContext } from "@/contexts/userContext";
 import { signUpFetch } from "@/services/signUpFetch";
 
 export default function SignUpPage() {
-  const [enter_username, setEnterUsername] = useState<string>('');
-  const [password,setPassword] = useState<string>('')
+  const [enter_username, setEnterUsername] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
   const { username, setUserName } = useContext(userContext);
 
   const navigate = useNavigate();
@@ -23,17 +23,13 @@ export default function SignUpPage() {
     navigate("/sign-in");
   };
 
-  
-
   const signUp = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
-      await signUpFetch(enter_username,password)
-      navSignIn()
-    }
-     
-    catch (error) {
+      await signUpFetch(enter_username, password);
+      navSignIn();
+    } catch (error) {
       console.log(error);
     }
   };
@@ -47,7 +43,13 @@ export default function SignUpPage() {
             Enter your username and password below to sign up
           </CardDescription>
           <CardAction>
-            <Button variant="link" className="!border-none !bg-transparent" onClick={navSignIn}>Sign in</Button>
+            <Button
+              variant="link"
+              className="!border-none !bg-transparent"
+              onClick={navSignIn}
+            >
+              Sign in
+            </Button>
           </CardAction>
         </CardHeader>
 
@@ -60,12 +62,11 @@ export default function SignUpPage() {
               onChange={(e) => setEnterUsername(e.target.value)}
             />
 
-            <Input 
+            <Input
               type="password"
               placeholder="Enter password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-
             />
 
             <Button
