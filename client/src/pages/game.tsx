@@ -1,7 +1,6 @@
 import Board from "@/components/board";
 import { useEffect, useState, useContext } from "react";
 import { gameSocket } from "@/hooks/game.socket";
-import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { roomContext } from "@/contexts/roomContext";
 import { colorContext } from "@/contexts/colorContext";
@@ -12,8 +11,10 @@ import { type onWaitingForGameData } from "@/hooks/game.socket";
 import useSocket from "@/hooks/useSocket";
 import DigitalClock from "@/components/digitalClock";
 import ResignDialog from "@/components/ResignDialog";
+import DrawDialog from "@/components/DrawDialog";
 import WaitingForOpponentScreen from "@/components/watingForOponnent";
 import GameOverScreen from "@/components/gameOverScreen";
+import DrawOffer from "@/components/DrawOffer";
 
 export default function Game() {
   const [waitingForGame, setWaitingForGame] = useState<boolean>(true)
@@ -25,6 +26,7 @@ export default function Game() {
   const { mode, setMode } = useContext(modeContext)
 
   const [gameOn, setGameOn] = useState<boolean>(false)
+  const [drawOffer,setDrawOffer] = useState<boolean>(false)
 
   const pieceColor = color === "white" ? "w" : "b"
   const [isTurn, setIsTurn] = useState<boolean>(false)
@@ -33,7 +35,7 @@ export default function Game() {
     setIsTurn(color === "white")
   }, [color])
 
-  const { joinGame } = useSocket()
+  const { joinGame } = useSocket({setDrawOffer})
 
   const navHome = () => {
     navigate("/")
@@ -94,7 +96,13 @@ export default function Game() {
               {isModePVP() &&
                 <div className="fixed left-0 top-1/2 -translate-y-1/2 flex flex-col gap-10 pl-10 items-start">
                   <ResignDialog resign={() => gameSocket.resign(color, currentRoom)}/>
-                  <Button onClick={gameSocket.draw} className="!bg-green-700 w-80">Draw</Button>
+                  <DrawDialog draw={() => gameSocket.emitDraw(currentRoom, "offer")}/>
+
+                  <DrawOffer 
+                    drawOffer={drawOffer} 
+                    response={(drawResponseMessage) => gameSocket.emitDraw(currentRoom, drawResponseMessage)}
+                    setDrawOffer={setDrawOffer}
+                  />
                 </div>
               }
 

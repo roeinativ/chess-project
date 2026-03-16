@@ -5,7 +5,7 @@ from managers.room_manager import RoomManager
 from managers.board_manager import BoardManager
 from sockets.socket_events import SocketEvents
 from managers.signed_in_clients import SignedInClients
-from api.routes import Routes
+from routes.route import Routes
 from models.users import db
 from engines.chess_engine import ChessEngine
 import logging

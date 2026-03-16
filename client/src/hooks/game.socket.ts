@@ -119,15 +119,18 @@ export const gameSocket = {
     })
   },
 
-  draw: () => {
-    socket.emit("draw")
+  emitDraw: (room: string | null, status: string) => {
+    socket.emit("draw", {
+      room: room,
+      status: status
+    })
   },
 
+  listenForDraw: (callback: () => void) => {
+    socket.on("draw", callback)
+  },
 
- 
-
-
-
-
-
+  offListenForDraw: () => {
+    socket.off("draw")
+  },
 };

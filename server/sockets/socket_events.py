@@ -256,6 +256,23 @@ class SocketEvents:
             emit("game_over", {"message": f"{color} has resigned winner is {winner}", "fen": self.current_fen}, to=room)
             leave_game(room)
             print(f"{color} resigned ending game")
+            
+        @self.socketio.on("draw")
+        def handle_draw(data):
+            room = data.get("room")
+            status = data.get("status")
+            sid = request.sid
+            
+            if status == "offer":
+                opponent_sid = self.room_manager.get_opponent_sid(room,sid)
+                emit("draw", to=opponent_sid)
+                     
+            elif status == "accept":
+                emit("game_over", {"message": "Both players agreed on a draw", "fen": self.current_fen}, to=room)
+                leave_game(room)
+                
+            print(f"Got draw status: {status}")
+        
         
         
         def leave_game(room):

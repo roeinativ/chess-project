@@ -1,16 +1,18 @@
-import { useEffect, useRef, useContext } from "react";
+import { useEffect, useRef, useContext, type SetStateAction } from "react";
 import { homeSocket, type onJoinHomeData } from "./home.socket";
 import { gameSocket, type OnJoinGameData } from "./game.socket";
 import { userContext } from "@/contexts/userContext";
 import { roomContext } from "@/contexts/roomContext";
-import { socket } from "./socket";
 
 
+type listenForDrawType = {
+  setDrawOffer?: React.Dispatch<SetStateAction<boolean>>
+}
 
-export default function useSocket() {
+
+export default function useSocket({setDrawOffer}: listenForDrawType = {}) {
   const { username, setUserName } = useContext(userContext)
   const { currentRoom, setCurrentRoom } = useContext(roomContext) 
-
 
 
   // Handle join home 
@@ -40,6 +42,19 @@ export default function useSocket() {
       gameSocket.offJoinGame();
     };
   }, []);
+
+  // Listen for draw offer
+  useEffect(() => {
+    const handleDrawOffer = () => {
+      setDrawOffer?.(true)
+    }
+
+    gameSocket.listenForDraw(handleDrawOffer)
+
+    return () => {
+      gameSocket.offListenForDraw()
+    }
+  }, [])
 
 
   // Send server to join a game

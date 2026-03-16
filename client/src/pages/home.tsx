@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import useSocket from "@/hooks/useSocket";
 import { Button } from "@/components/ui/button";
 import { userContext } from "@/contexts/userContext";
@@ -13,6 +13,8 @@ export default function HomePage() {
   const { signedIn,setSignedIn } = useContext(signedInContext)
 
   const { mode, setMode } = useContext(modeContext)
+
+
   
 
   const navigate = useNavigate();
