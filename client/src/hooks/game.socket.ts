@@ -23,7 +23,7 @@ export type onWaitingForGameData = {
 }
 
 export type onGameOverData = {
-  winner: "w" | "b" | "t",
+  message: string,
   fen: string,
 }
 
@@ -110,6 +110,17 @@ export const gameSocket = {
 
   offGameOver: () => {
     socket.off("game_over")
+  },
+
+  resign: (color: "white" | "black", room: string | null) => {
+    socket.emit("resign", {
+      color: color,
+      room: room
+    })
+  },
+
+  draw: () => {
+    socket.emit("draw")
   },
 
 

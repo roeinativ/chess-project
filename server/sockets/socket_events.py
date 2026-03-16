@@ -13,7 +13,7 @@ class SocketEvents:
         self.home = room_manager.get_home()
         self.stockfish = stockfish
         self.players_time = {}
-        self.starting_time = 300000
+        self.starting_time = 300000000000000000000000
         self.current_turn = {}
         self.current_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
         self.register()
@@ -200,7 +200,7 @@ class SocketEvents:
                 
                 
                 if winner:
-                    emit("game_over", {"winner": winner, "fen": fen}, to=room)
+                    emit("game_over", {"message": f"Game over {winner} has wone the game", "fen": fen}, to=room)
                     print(f"Winner: {winner}, emiting to room {room}")
                     
                     # Put players inside the socket room home in order to clear it for other players
@@ -230,17 +230,32 @@ class SocketEvents:
                     # Checks if stockfish won
                     
                     if self.board_manager.is_checkmate(room):
-                        emit("game_over", {"winner": "engine", "fen": fen}, to=sid)
+                        emit("game_over", {"message": "Engine has wone the game", "fen": fen}, to=sid)
                         leave_game(room)
                     
                     elif self.board_manager.is_tie(room):
-                        emit("game_over", {"winner": "t", "fen": fen}, to=sid)
+                        emit("game_over", {"message": "Tie", "fen": fen}, to=sid)
                         leave_game(room)  
                 
             else:
                 print("Move not valid")
                 
-
+        @self.socketio.on("resign")
+        def handle_resign(data):
+            color = data.get("color")
+            room = data.get("room")
+            
+            winner = "white"
+            
+            if color == "white":
+                winner = "black" 
+                
+            winner.capitalize()
+            color.capitalize()
+                
+            emit("game_over", {"message": f"{color} has resigned winner is {winner}", "fen": self.current_fen}, to=room)
+            leave_game(room)
+            print(f"{color} resigned ending game")
         
         
         def leave_game(room):
@@ -271,7 +286,7 @@ class SocketEvents:
                     if winner_index == 1:
                         winner = "black"
                     
-                    self.socketio.emit("game_over", {"winner": winner, "fen": self.current_fen}, to=room)  
+                    self.socketio.emit("game_over", {"message": f"Time run out winner is {winner}", "fen": self.current_fen}, to=room)  
                     del self.players_time[room]
                     del self.current_turn[room]
                     break

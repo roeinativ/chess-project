@@ -9,7 +9,7 @@ setFen: (fen: string) => void;
 setIsTurn: (val: boolean) => void;
 setGameOn: (val: boolean) => void;
 setCurrentRoom: (room: string) => void;
-PresentWinner: (winner: string) => void;
+setEndingMessage: (endingMessage: string | null) => void;
 handlePreMoves: () => void;
 };
 
@@ -19,7 +19,7 @@ export function useChessGame({
   setIsTurn,
   setGameOn,
   setCurrentRoom,
-  PresentWinner,
+  setEndingMessage,
   handlePreMoves,
 }: UseChessGameParams) {
 
@@ -63,7 +63,7 @@ export function useChessGame({
       setTimeout(() => {
         setGameOn(false);
         setCurrentRoom("Home");
-        PresentWinner(data.winner);
+        setEndingMessage(data.message);
       }, 2000)
     };
 

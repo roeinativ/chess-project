@@ -1,7 +1,6 @@
 import Board from "@/components/board";
 import { useEffect, useState, useContext } from "react";
 import { gameSocket } from "@/hooks/game.socket";
-import { Card, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { roomContext } from "@/contexts/roomContext";
@@ -9,22 +8,23 @@ import { colorContext } from "@/contexts/colorContext";
 import { gameOnContext } from "@/contexts/gameOnContext";
 import { modeContext } from "@/contexts/modeContext";
 import { Chessboard } from "react-chessboard";
-import {type onWaitingForGameData } from "@/hooks/game.socket";
+import { type onWaitingForGameData } from "@/hooks/game.socket";
 import useSocket from "@/hooks/useSocket";
 import DigitalClock from "@/components/digitalClock";
-
-
+import ResignDialog from "@/components/ResignDialog";
+import WaitingForOpponentScreen from "@/components/watingForOponnent";
+import GameOverScreen from "@/components/gameOverScreen";
 
 export default function Game() {
-  const [waitingForGame,setWaitingForGame] = useState<boolean>(true)
-  const [winner,setWinner] = useState<string | null>(null)  
+  const [waitingForGame, setWaitingForGame] = useState<boolean>(true)
+  const [endingMessage, setEndingMessage] = useState<string | null>('')
   const navigate = useNavigate()
 
   const { currentRoom, setCurrentRoom } = useContext(roomContext)
   const { color, setColor } = useContext(colorContext)
   const { mode, setMode } = useContext(modeContext)
 
-  const [gameOn,setGameOn] = useState<boolean>(false)
+  const [gameOn, setGameOn] = useState<boolean>(false)
 
   const pieceColor = color === "white" ? "w" : "b"
   const [isTurn, setIsTurn] = useState<boolean>(false)
@@ -32,7 +32,7 @@ export default function Game() {
   useEffect(() => {
     setIsTurn(color === "white")
   }, [color])
- 
+
   const { joinGame } = useSocket()
 
   const navHome = () => {
@@ -43,7 +43,6 @@ export default function Game() {
     navHome()
     gameSocket.cancelMatchmaking(currentRoom)
   }
-
 
   const isGameOver = () => {
     return !gameOn && !waitingForGame
@@ -58,14 +57,12 @@ export default function Game() {
     return mode === "PVP"
   }
 
-  // Listen for when game starts and waiting screen can be removed.
+
   useEffect(() => {
     const handleGameStart = (data: onWaitingForGameData) => {
       setColor(data.color)
-      console.log(`Color got from server is ${data.color}`)
       setWaitingForGame(false)
       setGameOn(true)
-      console.log("Game started")
     }
 
     gameSocket.onWaitingForGame(handleGameStart)
@@ -75,73 +72,57 @@ export default function Game() {
     }
   }, [])
 
-
   return (
-    <div className="min-h-screen">
-      <gameOnContext.Provider value={{gameOn,setGameOn}}>
+    <div className="min-h-screen flex items-start justify-center">
+      <gameOnContext.Provider value={{ gameOn, setGameOn }}>
+        <div className="relative">
 
-        <div className="w-160 relative">
-
-          { waitingForGame && 
-          <div className="absolute inset-0 flex items-center justify-center bg-black/40 z-1">
-            <Card className="w-120">
-              <CardHeader>
-                <CardTitle>Waiting for opponent to join</CardTitle>
-                <p>.....</p>
-              </CardHeader>
-
-              <CardFooter className="flex justify-center">
-                <Button className="!bg-green-700" onClick={cancelMatchmaking}>Cancel</Button>
-              </CardFooter>
-            </Card>
-          </div>
+          {waitingForGame &&
+            <WaitingForOpponentScreen cancelMatchmaking={cancelMatchmaking}/>
           }
 
+          {isGameOver() &&
+            <GameOverScreen 
+            endingMessage={endingMessage} 
+            navHome={navHome} 
+            StartWaiting={StartWaiting}/>
+          }
 
-
-        {isGameOver() && 
-          <div className="absolute inset-0 flex items-center justify-center bg-black/40 z-1">
-            <Card className="w-120">
-              <CardHeader>
-                <CardTitle className="text-2xl"> {winner === "white" || winner === "black" || winner === "engine" ? `${winner.charAt(0).toUpperCase() + winner.slice(1)} has won the game` : "Tie"} </CardTitle>
-              </CardHeader>
-
-              <CardFooter className="flex justify-center text-lg">
-                <div className="flex gap-5">
-                  <Button className="!bg-green-700" onClick={navHome}>Return to home</Button>
-                  <Button onClick={StartWaiting} className="!bg-green-700">New Game</Button>
-                </div>
-              </CardFooter>
-            </Card>
-          </div>
-        }
-
-          {/*Render dummy board in background and not real board with socket listeners*/}
           {!waitingForGame ? (
-              <div className="flex gap-4 w-fit">
-                  <div className="relative w-160">
-                    <Board 
-                      PresentWinner={(winner) => setWinner(winner)} 
-                      isTurn={isTurn}
-                      setIsTurn={setIsTurn}
-                    />
-                  </div>
+            <div className="flex gap-4 items-stretch pl-50">
 
-                {isModePVP() &&
-                  <div className="flex flex-col justify-between">
-                    <DigitalClock isTurn={!isTurn} pieceColor={pieceColor === "w" ? "b" : "w"}/>
-                    <DigitalClock isTurn={isTurn} pieceColor={pieceColor === "w" ? "w" : "b"}/>
-                  </div>}
-                  
+              {isModePVP() &&
+                <div className="fixed left-0 top-1/2 -translate-y-1/2 flex flex-col gap-10 pl-10 items-start">
+                  <ResignDialog resign={() => gameSocket.resign(color, currentRoom)}/>
+                  <Button onClick={gameSocket.draw} className="!bg-green-700 w-80">Draw</Button>
+                </div>
+              }
 
+              <div className="relative w-160">
+                <Board
+                  setEndingMessage={(endingMessage) => setEndingMessage(endingMessage)}
+                  isTurn={isTurn}
+                  setIsTurn={setIsTurn}
+                />
               </div>
+
+              {isModePVP() &&
+                <div className="flex flex-col justify-between">
+                  <DigitalClock isTurn={!isTurn} pieceColor={pieceColor === "w" ? "b" : "w"} isGameOver={isGameOver}/>
+                  <DigitalClock isTurn={isTurn} pieceColor={pieceColor === "w" ? "w" : "b"} isGameOver={isGameOver}/>
+                </div>
+              }
+
+            </div>
           ) : (
+            
+            <div className="w-160">
               <Chessboard />
+            </div>
           )}
+
         </div>
-
-      </gameOnContext.Provider>    
-
+      </gameOnContext.Provider>
     </div>
   );
 }

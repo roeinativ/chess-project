@@ -15,12 +15,12 @@ import { useChessGame } from "@/hooks/listenForMoves";
 
 
 type BoardProps = {
-  PresentWinner: (winner: string) => void
+  setEndingMessage: React.Dispatch<React.SetStateAction<string | null>>
   isTurn: boolean
   setIsTurn: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-export default function Board({ PresentWinner, isTurn, setIsTurn}: BoardProps) {
+export default function Board({ setEndingMessage, isTurn, setIsTurn}: BoardProps) {
 
   const { username, setUserName } = useContext(userContext)
   const { currentRoom,setCurrentRoom } = useContext(roomContext)
@@ -53,7 +53,7 @@ export default function Board({ PresentWinner, isTurn, setIsTurn}: BoardProps) {
     setIsTurn,
     setGameOn,
     setCurrentRoom,
-    PresentWinner,
+    setEndingMessage,
     handlePreMoves,
   })
 

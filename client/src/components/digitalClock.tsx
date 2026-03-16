@@ -5,14 +5,15 @@ import { Item } from "./ui/item"
 type DigitalClockProps = {
     isTurn: boolean
     pieceColor: "w" | "b"
+    isGameOver: () => {}
 }
 
-export default function DigitalClock({ isTurn, pieceColor }: DigitalClockProps) {
+export default function DigitalClock({ isTurn, pieceColor, isGameOver }: DigitalClockProps) {
 
     const [time, setTime] = useState(300)
 
     useEffect(() => {
-        if (!isTurn) return
+        if (!isTurn || isGameOver()) return
 
         const interval = setInterval(() => {
             setTime(prev => {
@@ -23,7 +24,8 @@ export default function DigitalClock({ isTurn, pieceColor }: DigitalClockProps) 
 
         return () => clearInterval(interval)
 
-    }, [isTurn])
+
+    }, [isTurn,isGameOver])
 
     const minutes = Math.floor(time / 60)
     const seconds = time % 60

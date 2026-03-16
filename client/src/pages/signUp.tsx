@@ -23,12 +23,13 @@ export default function SignUpPage() {
     navigate("/sign-in");
   };
 
+  
 
   const signUp = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
-      const data = await signUpFetch(enter_username,password)
+      await signUpFetch(enter_username,password)
       navSignIn()
     }
      
@@ -38,7 +39,7 @@ export default function SignUpPage() {
   };
 
   return (
-    <>
+    <main>
       <Card className="w-120 text-left">
         <CardHeader className="items-start">
           <CardTitle className="text-2xl">Sign up to chess games</CardTitle>
@@ -46,11 +47,11 @@ export default function SignUpPage() {
             Enter your username and password below to sign up
           </CardDescription>
           <CardAction>
-            <Button variant="link">Sign up</Button>
+            <Button variant="link" className="!border-none !bg-transparent" onClick={navSignIn}>Sign in</Button>
           </CardAction>
         </CardHeader>
 
-        <form onSubmit={signUp} className="">
+        <form onSubmit={signUp}>
           <div className="flex flex-col gap-3 w-3/4 mx-auto">
             <Input
               type="text"
@@ -78,6 +79,6 @@ export default function SignUpPage() {
           </div>
         </form>
       </Card>
-    </>
+    </main>
   );
 }

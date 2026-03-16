@@ -22,6 +22,10 @@ export default function SignInPage(){
         navigate("/");
     };
 
+    const navSignUp = () => {
+        navigate("/sign-up")
+    }
+
 
     const emitSignIn = (username: string) => {
         socket.emit("sign_in", {
@@ -59,7 +63,7 @@ export default function SignInPage(){
                     <CardTitle className="text-2xl">Sign in to chess games</CardTitle>
                     <CardDescription>Enter your username and password below to sign in</CardDescription>
                     <CardAction>
-                        <Button variant="link">Sign up</Button>
+                        <Button variant="link" className="!border-none !bg-transparent" onClick={navSignUp}>Sign up</Button>
                     </CardAction>
                 </CardHeader>
 
