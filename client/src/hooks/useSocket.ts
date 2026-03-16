@@ -1,8 +1,9 @@
-import { useEffect, useRef, useContext, type SetStateAction } from "react";
-import { homeSocket, type onJoinHomeData } from "./home.socket";
-import { gameSocket, type OnJoinGameData } from "./game.socket";
+import { useEffect, useContext, type SetStateAction } from "react";
+import { homeSocket } from "./home.socket";
+import { gameSocket } from "./game.socket";
 import { userContext } from "@/contexts/userContext";
 import { roomContext } from "@/contexts/roomContext";
+import * as Types from "@/types/types"
 
 
 type listenForDrawType = {
@@ -17,7 +18,7 @@ export default function useSocket({setDrawOffer}: listenForDrawType = {}) {
 
   // Handle join home 
   useEffect(() => {
-    const handleJoinHome = (data: onJoinHomeData) => {
+    const handleJoinHome = (data: Types.OnJoinGameData) => {
       setCurrentRoom(data.room);
       console.log(data.username, "has joined to", data.room);
     };
@@ -31,7 +32,7 @@ export default function useSocket({setDrawOffer}: listenForDrawType = {}) {
 
   // Handle join game 
   useEffect(() => {
-    const handleJoinGame = (data: OnJoinGameData) => {
+    const handleJoinGame = (data: Types.OnJoinGameData) => {
       setCurrentRoom(data.room);
       console.log("Being added to game room number", data.room);
     };

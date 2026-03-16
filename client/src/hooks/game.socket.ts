@@ -1,40 +1,6 @@
 import { socket } from "./socket";
 
-export type OnJoinGameData = {
-  username: string;
-  room: string;
-};
-
-export type moveData = {
-  from: string;
-  to: string;
-  promotion: string;
-  valid: boolean;
-};
-
-export type onMoveData = {
-  fen: string,
-}
-
-export type onWaitingForGameData = {
-  username: string,
-  room: string,
-  color: 'white' | 'black',
-}
-
-export type onGameOverData = {
-  message: string,
-  fen: string,
-}
-
-
-export type onPieceDropArgs = {
-  sourceSquare: string,
-  targetSquare: string | null,
-  piece: { pieceType: string },
-};
-
-
+import * as Types from '@/types/types'
 
 export const gameSocket = {
 
@@ -46,7 +12,7 @@ export const gameSocket = {
     console.log(`Mode is ${mode}`)
   },
 
-  onJoinGame: (callback: (data: OnJoinGameData) => void) => {
+  onJoinGame: (callback: (data: Types.OnJoinGameData) => void) => {
     socket.on("join_game", callback);
   },
 
@@ -74,7 +40,7 @@ export const gameSocket = {
     });
   },
 
-  onNotValidMove: (callback: (data: moveData) => void) => {
+  onNotValidMove: (callback: (data: Types.MoveData) => void) => {
     socket.on("is_move_valid", callback)
   },
 
@@ -82,7 +48,7 @@ export const gameSocket = {
     socket.off("is_move_valid")
   },
 
-  onWaitingForGame: (callback: (data: onWaitingForGameData) => void) => {
+  onWaitingForGame: (callback: (data: Types.OnWaitingForGameData) => void) => {
     socket.on("start_game",callback)
   },
 
@@ -96,7 +62,7 @@ export const gameSocket = {
     })
   },
 
-  onMove : (callback: (data: onMoveData) => void) => {
+  onMove : (callback: (data: Types.OnMoveData) => void) => {
     socket.on("move",callback)
   },
 
@@ -104,7 +70,7 @@ export const gameSocket = {
     socket.off("move")
   },
 
-  onGameOver: (callback: (data: onGameOverData) => void) => {
+  onGameOver: (callback: (data: Types.OnGameOverData) => void) => {
     socket.on("game_over",callback)
   },
 

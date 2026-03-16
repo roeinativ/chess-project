@@ -1,14 +1,9 @@
 import { Card, CardHeader, CardTitle, CardFooter} from "./ui/card"
 import { Button } from "./ui/button"
-
-type GameOverScreenType = {
-    endingMessage: string | null
-    navHome: () => void
-    StartWaiting: () => void
-}
+import * as Types from "@/types/types"
 
 
-export default function GameOverScreen({endingMessage,navHome,StartWaiting}: GameOverScreenType) {
+export default function GameOverScreen({endingMessage,navHome,StartWaiting}: Types.GameOverScreenType) {
     return (
         <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-1">
             <Card className="w-120">

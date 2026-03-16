@@ -10,13 +10,9 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { Button } from "./ui/button"
-
-
-type ResignDialogType = {
-    resign: () => void
-}
+import * as Types from "@/types/types"
  
-export default function ResignDialog({resign} : ResignDialogType) {
+export default function ResignDialog({resign} : Types.ResignDialogType) {
     return (
         <>
             <AlertDialog>

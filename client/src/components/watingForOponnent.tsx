@@ -1,11 +1,9 @@
 import { Card, CardHeader, CardTitle, CardFooter} from "./ui/card"
 import { Button } from "./ui/button"
+import * as Types from "@/types/types"
 
-type WaitingForOpponentScreenType = {
-    cancelMatchmaking: () => void
-}
 
-export default function WaitingForOpponentScreen({cancelMatchmaking}: WaitingForOpponentScreenType) {
+export default function WaitingForOpponentScreen({cancelMatchmaking}: Types.WaitingForOpponentScreenType) {
     return (
         <div className="absolute inset-0 flex items-center justify-center bg-black/40 z-1">
             <Card className="w-120">

@@ -1,7 +1,7 @@
 import { Chess } from "chess.js";
-import type { moveData,onGameOverData,onMoveData } from "./game.socket";
 import { useEffect } from "react";
 import { gameSocket } from "./game.socket";
+import * as Types from "@/types/types"
 
 type UseChessGameParams = {
 chessGameRef: React.RefObject<Chess>;
@@ -25,7 +25,7 @@ export function useChessGame({
 
 // Listen for move validation
   useEffect(() => {
-    const handleValidation = (data: moveData) => {
+    const handleValidation = (data: Types.MoveData) => {
       if (data.valid) {
         setFen(chessGameRef.current.fen());
         setIsTurn(false);
@@ -43,7 +43,7 @@ export function useChessGame({
 
   // Listen for opponent move
   useEffect(() => {
-    const handleMove = (data: onMoveData) => {
+    const handleMove = (data: Types.OnMoveData) => {
       chessGameRef.current.load(data.fen);
       setFen(data.fen);
       setIsTurn(true);
@@ -56,7 +56,7 @@ export function useChessGame({
 
   // Listen for game over
   useEffect(() => {
-    const handleGameOver = (data: onGameOverData) => {
+    const handleGameOver = (data: Types.OnGameOverData) => {
       chessGameRef.current.load(data.fen);
       setFen(data.fen);
 

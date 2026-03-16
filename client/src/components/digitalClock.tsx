@@ -1,14 +1,11 @@
 import { useState, useEffect } from "react"
 import { Item } from "./ui/item"
+import * as Types from "@/types/types";
 
 
-type DigitalClockProps = {
-    isTurn: boolean
-    pieceColor: "w" | "b"
-    isGameOver: () => {}
-}
 
-export default function DigitalClock({ isTurn, pieceColor, isGameOver }: DigitalClockProps) {
+
+export default function DigitalClock({ isTurn, pieceColor, isGameOver }: Types.DigitalClockProps) {
 
     const [time, setTime] = useState(300)
 

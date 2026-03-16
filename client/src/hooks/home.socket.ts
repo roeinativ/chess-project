@@ -1,9 +1,6 @@
 import { socket } from "./socket";
 
-export type onJoinHomeData = {
-  username: string;
-  room: string;
-};
+import * as Types from "@/types/types"
 
 export const homeSocket = {
   joinHome: (username: string | null) => {
@@ -14,7 +11,7 @@ export const homeSocket = {
     console.log("Emited join home")
   },
 
-  onJoinHome: (callback: (data: onJoinHomeData) => void) => {
+  onJoinHome: (callback: (data: Types.OnJoinGameData) => void) => {
     socket.on("join_home", callback);
   },
 

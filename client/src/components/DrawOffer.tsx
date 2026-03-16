@@ -1,4 +1,3 @@
-import type { SetStateAction } from "react";
 import { AlertDialog,
     AlertDialogAction,
     AlertDialogCancel,
@@ -8,14 +7,10 @@ import { AlertDialog,
     AlertDialogHeader,
     AlertDialogTitle
 } from "./ui/alert-dialog";
+import * as Types from "@/types/types"
 
-type DrawOfferType = {
-    drawOffer: boolean
-    response: (value: string) => void
-    setDrawOffer: React.Dispatch<SetStateAction<boolean>>
-}
 
-export default function DrawOffer({drawOffer, response, setDrawOffer}: DrawOfferType) {
+export default function DrawOffer({drawOffer, response, setDrawOffer}: Types.DrawOfferType) {
     
     const handleResponse = (value: string) => {
         response(value)
