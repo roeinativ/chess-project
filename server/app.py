@@ -36,7 +36,6 @@ routes = Routes(app, signed_in_clients)
 if __name__ == "__main__":
 
     with app.app_context():
-        db.drop_all()
         db.create_all()
 
     socketio.run(

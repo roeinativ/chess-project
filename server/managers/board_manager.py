@@ -8,6 +8,7 @@ class BoardManager:
         self.current_board = 0
         self.room_number = room_number
         self.colors = ["white", "black"]
+        self.turn_count = {}
 
     def get_colors(self):
         random.shuffle(self.colors)
@@ -15,6 +16,7 @@ class BoardManager:
 
     def create_new_board(self, game_room):
         self.boards[game_room] = chess.Board()
+        self.turn_count[game_room] = 1
         return self.boards[game_room]
 
     def get_legal_moves(self, room_number):
@@ -52,8 +54,19 @@ class BoardManager:
         return False
 
     def push_board(self, move, room_number):
-        self.boards[room_number].push_uci(move)
-
+        board = self.boards[room_number]
+        
+        move_obj = chess.Move.from_uci(move)
+        san_move = board.san(move_obj)
+        board.push_uci(move)
+            
+        return san_move
     def get_board_fen(self, room_number):
         board = self.boards[room_number]
         return board.fen()
+
+    def get_current_turn(self,room):
+        return self.turn_count[room]
+    
+    def inc_turn(self,room):
+        self.turn_count[room] += 1

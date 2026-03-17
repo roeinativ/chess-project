@@ -1,7 +1,7 @@
 from flask_socketio import emit, join_room, leave_room
 from flask import request
 from models.users import Users
-from models.games import GameHistory
+from models.games import GameHistory, db
 from datetime import datetime
 
 
@@ -17,8 +17,9 @@ class SocketEvents:
         self.stockfish = stockfish
         self.players_time = {}
         self.starting_time = 300000000000000000000000
-        self.current_turn = {}
+        self.current_turn = {}  # Used in game clock
         self.current_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+        self.game_history = {}
         self.register()
 
     def register(self):
@@ -108,7 +109,11 @@ class SocketEvents:
                         self.starting_time,
                     ]
                     self.current_turn[game_room] = 0
-                    self.socketio.start_background_task(count_time, game_room)
+                    self.socketio.start_background_task(count_time, game_room, mode)
+
+                    self.game_history[game_room] = [
+                        {"turn": 1, "white_move": None, "black_move": None}
+                    ]
 
                 def send_start():
                     self.socketio.sleep(0.3)
@@ -182,10 +187,9 @@ class SocketEvents:
             if self.board_manager.valid_move(move, room):
 
                 # Push current game virtual server board and get fen
-                self.board_manager.push_board(move, room)
+                san_move = self.board_manager.push_board(move, room)
                 fen = self.board_manager.get_board_fen(room)
                 self.current_fen = fen
-                print()
 
                 # Check if checkmate or tie and change the winner
                 if self.board_manager.is_checkmate(room):
@@ -197,22 +201,58 @@ class SocketEvents:
                 else:
                     winner = None
 
-                if winner:
+
+                if mode == "PVE":
                     emit(
-                        "game_over",
-                        {
-                            "message": f"Game over {winner} has wone the game",
-                            "fen": fen,
-                        },
-                        to=room,
+                        "is_move_valid",
+                        {"from": square_from, "to": square_to, "valid": True},
+                        to=sid,
                     )
-                    print(f"Winner: {winner}, emiting to room {room}")
 
-                    # Put players inside the socket room home in order to clear it for other players
-                    leave_game(room)
+                    engine_move = self.stockfish.get_best_move(fen)
+                    self.board_manager.push_board(engine_move, room)
+                    fen = self.board_manager.get_board_fen(room)
+                    self.current_fen = fen
 
-                elif mode == "PVP":
+                    emit("move", {"fen": fen}, to=sid)
+
+                    # Checks if stockfish won
+
+                    if self.board_manager.is_checkmate(room):
+                        message = "Engine has wone the game"
+
+                    elif self.board_manager.is_tie(room):
+                        message = "Tie"
+                    
+                    else:
+                        message = None
+                    
+                    if message:
+                        game_over(room, message, mode)
+                        
+                
+                else:
                     # If normal move emit to player:
+
+                    # Add move to game history
+
+                    turn = self.board_manager.get_current_turn(room) - 1
+
+                    if self.current_turn[room] == 1:
+                        self.game_history[room][turn]["white_move"] = san_move
+
+                    else:
+                        self.game_history[room][turn]["black_move"] = san_move
+                        self.board_manager.inc_turn(room)
+
+                        self.game_history[room].append(
+                            {
+                                "turn": self.board_manager.get_current_turn(room),
+                                "white_move": None,
+                                "black_move": None,
+                            }
+                        )
+
 
                     # Emit to current player
                     emit(
@@ -225,33 +265,17 @@ class SocketEvents:
                     opponent_sid = self.room_manager.get_opponent_sid(room, sid)
                     emit("move", {"fen": fen}, to=opponent_sid)
                     print("Move valid sending to opponent")
-
-                else:
-                    emit(
-                        "is_move_valid",
-                        {"from": square_from, "to": square_to, "valid": True},
-                        to=sid,
-                    )
-
-                    engine_move = self.stockfish.get_best_move(fen)
-                    self.board_manager.push_board(engine_move, room)
-                    fen = self.board_manager.get_board_fen(room)
-
-                    emit("move", {"fen": fen}, to=sid)
-
-                    # Checks if stockfish won
-
-                    if self.board_manager.is_checkmate(room):
-                        emit(
-                            "game_over",
-                            {"message": "Engine has wone the game", "fen": fen},
-                            to=sid,
-                        )
-                        leave_game(room)
-
-                    elif self.board_manager.is_tie(room):
-                        emit("game_over", {"message": "Tie", "fen": fen}, to=sid)
-                        leave_game(room)
+                    
+                    
+                if winner:
+                    message = f"Game over {winner} has wone the game"
+                    
+                    sids = self.room_manager.get_room_sids(room)
+                    game_over(room, message, mode, sids)
+                    
+                                        
+                    print(f"Winner: {winner}, emiting to room {room}")
+                        
 
             else:
                 print("Move not valid")
@@ -260,6 +284,7 @@ class SocketEvents:
         def handle_resign(data):
             color = data.get("color")
             room = data.get("room")
+            mode = data.get("mode")
 
             winner = "white"
 
@@ -268,22 +293,19 @@ class SocketEvents:
 
             winner.capitalize()
             color.capitalize()
+            
+            message = f"{color} has resigned winner is {winner}"
 
-            emit(
-                "game_over",
-                {
-                    "message": f"{color} has resigned winner is {winner}",
-                    "fen": self.current_fen,
-                },
-                to=room,
-            )
-            leave_game(room)
+            sids = self.room_manager.get_room_sids(room)
+            game_over(room,message, mode,sids)
+            
             print(f"{color} resigned ending game")
 
         @self.socketio.on("draw")
         def handle_draw(data):
             room = data.get("room")
             status = data.get("status")
+            mode = data.get("mode")
             sid = request.sid
 
             if status == "offer":
@@ -291,15 +313,9 @@ class SocketEvents:
                 emit("draw", to=opponent_sid)
 
             elif status == "accept":
-                emit(
-                    "game_over",
-                    {
-                        "message": "Both players agreed on a draw",
-                        "fen": self.current_fen,
-                    },
-                    to=room,
-                )
-                leave_game(room)
+                message = "Both players agreed on a draw"
+                sids = self.room_manager.get_room_sids(room)
+                game_over(room, message, mode, sids)
 
             print(f"Got draw status: {status}")
 
@@ -317,7 +333,7 @@ class SocketEvents:
 
             print(f"Home users {self.room_manager.get_home_users()}")
 
-        def count_time(room):
+        def count_time(room, mode):
             winner = "white"
             while room in self.players_time:
                 self.socketio.sleep(1)
@@ -329,15 +345,39 @@ class SocketEvents:
                     winner_index = 1 - current_player
                     if winner_index == 1:
                         winner = "black"
+                    
+                    message = f"Time run out winner is {winner}"
+                        
+                    sids = self.room_manager.get_room_sids(room)    
+                    game_over(room, message, mode, sids)
 
-                    self.socketio.emit(
-                        "game_over",
-                        {
-                            "message": f"Time run out winner is {winner}",
-                            "fen": self.current_fen,
-                        },
-                        to=room,
-                    )
                     del self.players_time[room]
                     del self.current_turn[room]
                     break
+                
+        def game_over(room,message, mode, sids=None):
+            self.socketio.emit("game_over", {"message": message, "fen": self.current_fen}, to=room)
+
+            if mode == "PVP":
+                
+                first_player_sid = sids[0]
+                second_player_sid = sids[1]
+                
+                first_username = self.signed_in_clients.get_username(first_player_sid)
+                second_username = self.signed_in_clients.get_username(second_player_sid)
+                
+                game_history = self.game_history[room]
+                new_game_history = GameHistory(first_username,second_username, game_history)
+                del self.game_history[room]
+                
+                db.session.add(new_game_history)
+                db.session.commit()
+                
+                print(new_game_history)
+                    
+            leave_game(room)
+                
+                
+            
+    
+            

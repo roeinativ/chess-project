@@ -1,7 +1,5 @@
-from flask_sqlalchemy import SQLAlchemy
+from models.extensions import db
 import uuid
-
-db = SQLAlchemy()
 
 class Users(db.Model):
     id = db.Column(db.String(100), primary_key=True, default=lambda: str(uuid.uuid4()))

@@ -58,7 +58,7 @@ class RoomManager:
                 users.remove(sid)
                 return
 
-    def get_room_sids(self, room):
+    def get_room_sids(self,room):
         return self.rooms[room]
 
     def get_opponent_sid(self, room, sid):

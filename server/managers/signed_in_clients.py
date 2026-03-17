@@ -23,9 +23,19 @@ class SignedInClients:
                     prev_sid = sid
 
             val = self.signed_in_clients.pop(prev_sid)
-            self.signed_in_clients[new_sid] = val
+            self.signed_in_clients[new_sid] = val  
 
         else:
             self.add_user(new_sid, user_id)
 
         print(f"Connected clients: {self.signed_in_clients}")
+        
+    def get_username(self,sid):
+        if self.signed_in_clients[sid]:
+            id = self.signed_in_clients[sid]
+            
+            user = Users.query.filter_by(id=id).first()
+            username = user.name
+            return username
+        
+        return "Guest"

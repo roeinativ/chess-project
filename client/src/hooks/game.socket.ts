@@ -77,17 +77,19 @@ export const gameSocket = {
     socket.off("game_over");
   },
 
-  resign: (color: "white" | "black", room: string | null) => {
+  resign: (color: "white" | "black", room: string | null, mode: "PVE" | "PVP" | null) => {
     socket.emit("resign", {
       color: color,
       room: room,
+      mode: mode,
     });
   },
 
-  emitDraw: (room: string | null, status: string) => {
+  emitDraw: (room: string | null, status: string, mode: "PVE" | "PVP" | null) => {
     socket.emit("draw", {
       room: room,
       status: status,
+      mode: mode,
     });
   },
 
