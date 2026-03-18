@@ -28,7 +28,7 @@ signed_in_clients = SignedInClients()
 room_manager = RoomManager()
 board_manager = BoardManager(1)
 socket_events = SocketEvents(
-    socketio, room_manager, board_manager, signed_in_clients, chess_engine
+    socketio, room_manager, board_manager, signed_in_clients, chess_engine, app
 )
 routes = Routes(app, signed_in_clients)
 
