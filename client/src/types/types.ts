@@ -45,6 +45,7 @@ export type DrawOfferType = {
 export type GameOverScreenType = {
   endingMessage: string | null;
   navHome: () => void;
+  navHistory: () => void
   StartWaiting: () => void;
 };
 

@@ -1,4 +1,6 @@
-from models.users import Users, db
+from models.extensions import db
+from models.users import Users
+from models.games import GameHistory
 from flask import request, jsonify
 from flask_bcrypt import Bcrypt
 
@@ -19,6 +21,9 @@ class Routes:
             print(data)
             username = data["username"]
             password = data["password"]
+            
+            if len(password) < 5:
+                return jsonify({"message": "Weak password"}), 400
 
             found_user = Users.query.filter_by(name=username).first()
 
@@ -61,3 +66,21 @@ class Routes:
 
             print(f"User logged in: {username}")
             return jsonify({"username": username}), 200
+        
+        @self.app.route("/history", methods=["POST"])
+        def game_history():
+            data = request.get_json()
+            username = data["username"]
+            
+            found_user = Users.query.filter_by(name=username).first()
+            
+            if found_user:
+                games = GameHistory.query.filter(
+                    (GameHistory.first_username == username) | 
+                    (GameHistory.second_username == username)
+                ).all()
+                
+                return jsonify({"games": [game.to_dict() for game in games]}), 200
+            
+            return jsonify({"message": "User does not exist"}), 400
+            

@@ -40,6 +40,10 @@ export default function Game() {
   const navHome = () => {
     navigate("/");
   };
+  
+  const navHistory = () => {
+    navigate("/history")
+  }
 
   const cancelMatchmaking = () => {
     navHome();
@@ -85,6 +89,7 @@ export default function Game() {
             <GameOverScreen
               endingMessage={endingMessage}
               navHome={navHome}
+              navHistory={navHistory}
               StartWaiting={StartWaiting}
             />
           )}

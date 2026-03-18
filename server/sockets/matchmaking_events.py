@@ -2,7 +2,9 @@ from flask import request
 from flask_socketio import join_room, leave_room ,emit
 
 class MatchmakingEvents():
-    def __init__(self, socketio, room_manager, board_manager, signed_in_clients, stockfish, players_time, starting_time, current_turn, game_history, count_time):
+    def __init__(self, socketio, room_manager, board_manager, signed_in_clients, stockfish, 
+                 players_time, starting_time, current_turn, game_history, count_time, sid_color):
+        
         self.socketio = socketio
         self.room_manager = room_manager
         self.board_manager = board_manager
@@ -14,6 +16,8 @@ class MatchmakingEvents():
         self.game_history = game_history
         self.count_time = count_time
         self.home = room_manager.get_home()
+        self.sid_color = sid_color
+
         self.matchmaking_events()
 
     
@@ -74,6 +78,7 @@ class MatchmakingEvents():
                     self.game_history[game_room] = []
 
                 def send_start():
+                    
                     self.socketio.sleep(0.3)
                     for i in range(number_of_players):
                         color = color_list[i]
@@ -82,6 +87,8 @@ class MatchmakingEvents():
                             {"room": game_room, "color": color},
                             to=sid_list[i],
                         )
+                        
+                        self.sid_color[sid_list[i]] = color
 
                 self.socketio.start_background_task(send_start)
                 print(f"Room number: {game_room}, start the game")

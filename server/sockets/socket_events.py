@@ -18,6 +18,7 @@ class SocketEvents:
         self.current_turn = {}  # Used in game clock
         self.current_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
         self.game_history = {}
+        self.sid_color = {}
         self.app = app
         self.socket_events()
 
@@ -33,7 +34,8 @@ class SocketEvents:
             self.starting_time,
             self.current_turn,
             self.game_history,
-            self.count_time
+            self.count_time,
+            self.sid_color
         )
 
         GameLoopEvents(
@@ -68,20 +70,28 @@ class SocketEvents:
         print(f"Home users {self.room_manager.get_home_users()}")
         
         
-    def game_over(self,room,message, mode, sids=None):
+    def game_over(self,room,message, mode, winner=None ,sids=None):
         self.socketio.emit("game_over", {"message": message, "fen": self.current_fen}, to=room)
 
         with self.app.app_context():
             if mode == "PVP":
                 
-                first_player_sid = sids[0]
-                second_player_sid = sids[1]
-                
+                for i in range(len(sids)):
+                    player_sid = sids[i]
+                    
+                    if self.sid_color[player_sid] == "white":
+                        first_player_sid = player_sid
+                        
+                    else:
+                        second_player_sid = player_sid
+                        
+                    del self.sid_color[player_sid]
+                                
                 first_username = self.signed_in_clients.get_username(first_player_sid)
                 second_username = self.signed_in_clients.get_username(second_player_sid)
                 
                 game_history = self.game_history[room]
-                new_game_history = GameHistory(first_username,second_username, game_history)
+                new_game_history = GameHistory(first_username,second_username, winner ,game_history)
                 del self.game_history[room]
                 
                 db.session.add(new_game_history)

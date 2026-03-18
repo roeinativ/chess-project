@@ -5,6 +5,7 @@ import * as Types from "@/types/types";
 export default function GameOverScreen({
   endingMessage,
   navHome,
+  navHistory,
   StartWaiting,
 }: Types.GameOverScreenType) {
   return (
@@ -14,14 +15,17 @@ export default function GameOverScreen({
           <CardTitle className="text-2xl">{endingMessage}</CardTitle>
         </CardHeader>
 
-        <CardFooter className="flex justify-center text-lg">
+        <CardFooter className="flex justify-center text-md">
           <div className="flex gap-5">
             <Button className="!bg-green-700" onClick={navHome}>
               Return to home
             </Button>
+
             <Button onClick={StartWaiting} className="!bg-green-700">
               New Game
             </Button>
+
+            <Button onClick={navHistory} className="!bg-green-700">Game history</Button>
           </div>
         </CardFooter>
       </Card>

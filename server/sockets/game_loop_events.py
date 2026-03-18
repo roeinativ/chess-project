@@ -123,7 +123,7 @@ class GameLoopEvents():
                     message = f"Game over {winner} has won the game"
 
                     sids = self.room_manager.get_room_sids(room)
-                    self.game_over(room, message, mode, sids)
+                    self.game_over(room, message, mode, winner ,sids)
 
                     print(f"Winner: {winner}, emiting to room {room}")
 
@@ -147,7 +147,7 @@ class GameLoopEvents():
             message = f"{color} has resigned winner is {winner}"
 
             sids = self.room_manager.get_room_sids(room)
-            self.game_over(room, message, mode, sids)
+            self.game_over(room, message, mode, winner ,sids)
 
             print(f"{color} resigned ending game")
 
@@ -165,6 +165,6 @@ class GameLoopEvents():
             elif status == "accept":
                 message = "Both players agreed on a draw"
                 sids = self.room_manager.get_room_sids(room)
-                self.game_over(room, message, mode, sids)
+                self.game_over(room, message, mode, "Draw" ,sids)
 
             print(f"Got draw status: {status}")

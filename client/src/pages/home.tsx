@@ -20,6 +20,10 @@ export default function HomePage() {
     navigate("/game");
   };
 
+  const navHistory = () => {
+    navigate("/")
+  }
+
   // Mount socket listeners
   const { joinGame } = useSocket();
 
