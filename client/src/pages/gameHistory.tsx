@@ -28,6 +28,7 @@ type GameHistoryType = {
   history: History[]
 }
 
+
 export default function GameHistory() {
   
   const { username, setUserName } = useContext(userContext)
@@ -50,48 +51,66 @@ export default function GameHistory() {
     fetchHistory()
   }, [])
 
+  const isWon = ({first_username,second_username,winner}: GameHistoryType): string => {
+
+    if (winner === "white" && first_username === username || winner === "black" && second_username === username){
+      return "text-green-400"
+    }
+
+    else if (winner === "white" && first_username != username || winner === "black" && second_username != username)
+      return "text-red-400"
+
+    return ""
+  }
+
   return (
-    <>
-      <Table className="w-200">
-        <TableCaption>A list of your game history</TableCaption>
-        <TableHeader>
+    <main className="min-h-screen flex flex-col gap-20">
+      <div>
+        <h1 className="font-bold font-mono">Game history</h1>
+      </div>
 
-          <TableRow className="[&>*]:text-center">
-            <TableHead>White</TableHead>
-            <TableHead>Black</TableHead>
-            <TableHead>Winner</TableHead>
-          </TableRow>
+      <div>
+        <Table className="w-200 font-mono">
+          <TableCaption>A list of your game history</TableCaption>
+          <TableHeader>
 
-        </TableHeader>
-      
+            <TableRow className="[&>*]:text-center [&>*]:text-xl [&>*]:font-bold [&>*]:text-yellow-500">
+              <TableHead>White</TableHead>
+              <TableHead>Black</TableHead>
+              <TableHead>Winner</TableHead>
+            </TableRow>
 
-        <TableBody>
+          </TableHeader>
+        
 
-        {games.map((game, index) => (
-          <TableRow key={index}  onClick={() => setSelectedGame(game)}>
-              <TableCell>{game.first_username}</TableCell>
-              <TableCell>{game.second_username}</TableCell>
-              <TableCell>{game.winner}</TableCell>
-          </TableRow>
-        ))}
+          <TableBody>
 
-        </TableBody>
-      </Table>
-
-
-      <Dialog open={!!selectedGame} onOpenChange={() => setSelectedGame(null)}>
-        <DialogContent className="font-mono">
-          <DialogTitle>Game History</DialogTitle>
-          <DialogDescription>All games history for {username}</DialogDescription>
-          {selectedGame?.history.map((move,index) => (
-            <div className="flex gap-2" key={index}>
-              <span>{move.turn} - </span>
-              <span>{move.white_move}</span>
-              <span>{move.black_move}</span>
-            </div>
+          {games.map((game, index) => (
+            <TableRow key={index}  className="text-lg" onClick={() => setSelectedGame(game)}>
+                <TableCell>{game.first_username}</TableCell>
+                <TableCell>{game.second_username}</TableCell>
+                <TableCell className={isWon(game)}>{game.winner}</TableCell>
+            </TableRow>
           ))}
-        </DialogContent>
-      </Dialog>
-    </>
+
+          </TableBody>
+        </Table>
+
+
+        <Dialog open={!!selectedGame} onOpenChange={() => setSelectedGame(null)}>
+          <DialogContent className="font-mono">
+            <DialogTitle>Game History</DialogTitle>
+            <DialogDescription>All games history for {username}</DialogDescription>
+            {selectedGame?.history.map((move,index) => (
+              <div className="flex gap-2" key={index}>
+                <span className="text-yellow-500">{move.turn} - </span>
+                <span>{move.white_move}</span>
+                <span>{move.black_move}</span>
+              </div>
+            ))}
+          </DialogContent>
+        </Dialog>
+      </div>
+    </main>
   );
 }
