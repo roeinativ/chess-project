@@ -23,7 +23,7 @@ class Routes:
             password = data["password"]
             
             if len(password) < 5:
-                return jsonify({"message": "Weak password"}), 400
+                return jsonify({"message": "Please enter a password with at least five characters"}), 400
 
             found_user = Users.query.filter_by(name=username).first()
 

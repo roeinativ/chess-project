@@ -1,13 +1,9 @@
-import { Table,TableBody,TableCaption,TableHeader,TableFooter,TableRow, TableHead, TableCell } from "@/components/ui/table";
+import { Table,TableBody,TableCaption,TableHeader,TableRow, TableHead, TableCell } from "@/components/ui/table";
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogDescription,
-  DialogFooter,
-  DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog"
 
 
@@ -74,7 +70,7 @@ export default function GameHistory() {
           <TableCaption>A list of your game history</TableCaption>
           <TableHeader>
 
-            <TableRow className="[&>*]:text-center [&>*]:text-xl [&>*]:font-bold [&>*]:text-yellow-500">
+            <TableRow className="[&>*]:text-center [&>*]:text-2xl [&>*]:font-bold [&>*]:text-yellow-500">
               <TableHead>White</TableHead>
               <TableHead>Black</TableHead>
               <TableHead>Winner</TableHead>
@@ -101,7 +97,8 @@ export default function GameHistory() {
           <DialogContent className="font-mono">
             <DialogTitle>Game History</DialogTitle>
             <DialogDescription>All games history for {username}</DialogDescription>
-            {selectedGame?.history.map((move,index) => (
+
+            {selectedGame?.history.map((move, index) => (
               <div className="flex gap-2" key={index}>
                 <span className="text-yellow-500">{move.turn} - </span>
                 <span>{move.white_move}</span>

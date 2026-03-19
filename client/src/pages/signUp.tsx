@@ -1,21 +1,15 @@
-import { Input } from "@/components/ui/input";
 import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  Card,
-  CardAction,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { userContext } from "@/contexts/userContext";
-import { signUpFetch } from "@/services/signUpFetch";
+import { authFetch } from "@/services/authFetch";
+import SignUpComponent from "@/components/SignUpComponent";
 
 export default function SignUpPage() {
-  const [enter_username, setEnterUsername] = useState<string>("");
+  const [enterUsername, setEnterUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const [errorMessage, setErrorMessage] = useState<string>('')
   const { username, setUserName } = useContext(userContext);
+  const endpoint = "signUp"
 
   const navigate = useNavigate();
 
@@ -27,59 +21,27 @@ export default function SignUpPage() {
     e.preventDefault();
 
     try {
-      await signUpFetch(enter_username, password);
+      await authFetch({endpoint,enterUsername, password});
       navSignIn();
-    } catch (error) {
+    } 
+    
+    catch (error) {
+      setErrorMessage((error as Error).message)
       console.log(error);
     }
   };
 
   return (
-    <main>
-      <Card className="w-120 text-left">
-        <CardHeader className="items-start">
-          <CardTitle className="text-2xl">Sign up to chess games</CardTitle>
-          <CardDescription>
-            Enter your username and password below to sign up
-          </CardDescription>
-          <CardAction>
-            <Button
-              variant="link"
-              className="!border-none !bg-transparent"
-              onClick={navSignIn}
-            >
-              Sign in
-            </Button>
-          </CardAction>
-        </CardHeader>
-
-        <form onSubmit={signUp}>
-          <div className="flex flex-col gap-3 w-3/4 mx-auto">
-            <Input
-              type="text"
-              placeholder="Enter username"
-              value={enter_username}
-              onChange={(e) => setEnterUsername(e.target.value)}
-            />
-
-            <Input
-              type="password"
-              placeholder="Enter password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-
-            <Button
-              type="submit"
-              value="Submit"
-              onClick={() => console.log("Submited")}
-              className="!bg-green-700"
-            >
-              Submit
-            </Button>
-          </div>
-        </form>
-      </Card>
-    </main>
+    <>
+      <SignUpComponent 
+        navSignIn={navSignIn}
+        signUp={signUp}
+        enterUsername={enterUsername}
+        setEnterUsername={setEnterUsername}
+        password={password}
+        setPassword={setPassword}
+        errorMessage={errorMessage}
+      />
+    </>
   );
 }

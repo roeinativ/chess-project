@@ -1,25 +1,19 @@
 import { useState, useContext } from "react";
 import { socket } from "@/hooks/socket";
-import {
-  Card,
-  CardAction,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { userContext } from "@/contexts/userContext";
 import { setStoredUsername } from "@/hooks/storeUserName";
 import { useNavigate } from "react-router-dom";
 import { signedInContext } from "@/contexts/signedInContext";
-import { signInFetch } from "@/services/signInFetch";
+import { authFetch } from "@/services/authFetch";
+import SignInComponent from "@/components/SignInComponent";
 
 export default function SignInPage() {
   const [enterUsername, setEnterUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [errorMessage,setErrorMessage] = useState('')
   const { username, setUserName } = useContext(userContext);
   const { signedIn, setSignedIn } = useContext(signedInContext);
+  const endpoint = "signIn"
 
   const navigate = useNavigate();
 
@@ -41,59 +35,32 @@ export default function SignInPage() {
     e.preventDefault();
 
     try {
-      const data = await signInFetch(enterUsername, password);
+      const data = await authFetch({endpoint,enterUsername, password});
 
       setSignedIn(true);
       setUserName(data.username);
       setStoredUsername(data.username);
       emitSignIn(data.username);
       navHome();
-    } catch (error) {
+    } 
+    
+    catch (error) {
+      setErrorMessage((error as Error).message)
       console.log(error);
     }
   };
 
   return (
     <>
-      <Card className="w-120 text-left">
-        <CardHeader className="items-start">
-          <CardTitle className="text-2xl">Sign in to chess games</CardTitle>
-          <CardDescription>
-            Enter your username and password below to sign in
-          </CardDescription>
-          <CardAction>
-            <Button
-              variant="link"
-              className="!border-none !bg-transparent"
-              onClick={navSignUp}
-            >
-              Sign up
-            </Button>
-          </CardAction>
-        </CardHeader>
-
-        <form onSubmit={signIn} className="">
-          <div className="flex flex-col gap-3 w-3/4 mx-auto">
-            <Input
-              type="text"
-              placeholder="Enter username"
-              value={enterUsername}
-              onChange={(e) => setEnterUsername(e.target.value)}
-            />
-
-            <Input
-              type="password"
-              placeholder="Enter password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-
-            <Button type="submit" value="Submit" className="!bg-green-700">
-              Submit
-            </Button>
-          </div>
-        </form>
-      </Card>
+      <SignInComponent 
+        navSignUp={navSignUp}
+        signIn={signIn}
+        enterUsername={enterUsername}
+        setEnterUsername={setEnterUsername}
+        password={password}
+        setPassword={setPassword}
+        errorMessage={errorMessage}
+      />
     </>
   );
 }

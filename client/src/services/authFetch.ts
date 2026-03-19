@@ -1,13 +1,14 @@
 import { API_BASE } from "./api";
+import * as Types from "@/types/types"
 
-export async function signUpFetch(enter_username: string, password: string) {
-  const res = await fetch(`${API_BASE}/signUp`, {
+export async function authFetch({endpoint,enterUsername, password}: Types.AuthFetchType) {
+  const res = await fetch(`${API_BASE}/${endpoint}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      username: enter_username,
+      username: enterUsername,
       password: password,
     }),
   });
@@ -18,4 +19,6 @@ export async function signUpFetch(enter_username: string, password: string) {
   if (res.ok) {
     return data;
   }
+
+  throw new Error(data.message)
 }

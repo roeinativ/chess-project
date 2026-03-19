@@ -1,3 +1,4 @@
+import type React from "react";
 import type { SetStateAction } from "react";
 
 export interface OnJoinGameData {
@@ -56,3 +57,28 @@ export type ResignDialogType = {
 export type WaitingForOpponentScreenType = {
   cancelMatchmaking: () => void;
 };
+
+export interface AuthFetchType {
+  endpoint: string
+  enterUsername: string
+  password: string
+}
+
+export interface AuthType {
+  enterUsername: string
+  setEnterUsername: React.Dispatch<SetStateAction<string>>
+  password: string
+  setPassword: React.Dispatch<SetStateAction<string>>
+  errorMessage: string
+}
+
+export interface SignInType extends AuthType {
+  navSignUp: () => void
+  signIn: React.FormEventHandler
+
+}
+
+export interface SignUpType extends AuthType {
+  navSignIn: () => void
+  signUp: React.FormEventHandler
+}
