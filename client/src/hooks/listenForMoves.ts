@@ -22,29 +22,27 @@ export function useChessGame({
   setEndingMessage,
   handlePreMoves,
 }: UseChessGameParams) {
-  // Listen for move validation
-  useEffect(() => {
-    const handleValidation = (data: Types.MoveData) => {
-      if (data.valid) {
-        setFen(chessGameRef.current.fen());
-        setIsTurn(false);
-      } else {
-        chessGameRef.current.undo();
-      }
-    };
 
-    gameSocket.onNotValidMove(handleValidation);
-
-    return () => gameSocket.offNotValidMove();
-  }, []);
 
   // Listen for opponent move
   useEffect(() => {
     const handleMove = (data: Types.OnMoveData) => {
+
+
       chessGameRef.current.load(data.fen);
-      setFen(data.fen);
-      setIsTurn(true);
-      handlePreMoves();
+      
+      if (data.valid) {
+
+        setFen(data.fen);
+        setIsTurn(true);
+        handlePreMoves();
+        console.log("Move is valid updating fen")
+      }
+      
+      else {
+        console.log("Move was not valid")
+      }
+
     };
 
     gameSocket.onMove(handleMove);

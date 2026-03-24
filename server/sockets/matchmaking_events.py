@@ -1,114 +1,108 @@
 from flask import request
-from flask_socketio import join_room, leave_room ,emit
+from flask_socketio import join_room, leave_room, emit
 
-class MatchmakingEvents():
-    def __init__(self,starting_time, context,state, count_time):
-        
-        self.context = context
-        self.starting_time = starting_time
-        self.count_time = count_time
-        self.home = self.context.room_manager.get_home()
-        self.state = state
+
+class MatchmakingEvents:
+    def __init__(self,game_manager,socketio):
+
+        self.game_manager = game_manager
+        self.socketio = socketio
         self.matchmaking_events()
 
-    
     def matchmaking_events(self):
-    
-        @self.context.socketio.on("join_home")
+
+        @self.socketio.on("join_home")
         def handle_join_home(data):
-            self.home = self.context.room_manager.get_home()
+
             username = data.get("username")
             sid = request.sid
+            room = self.game_manager.HOME
 
-            join_room(self.home)
-            self.context.room_manager.add_to_home(sid)
+            join_room(room)
+            self.game_manager.add_to_waiting_room(sid)
 
-            print(f"Home users: {self.context.room_manager.get_home_users()}")
+            print(f"Home users: {self.game_manager.waiting_players} \n Game rooms: {self.game_manager.player_room}")
 
-            emit("join_home", {"username": username, "room": self.home}, to=sid)
+            emit("join_home", {"username": username, "room": room}, to=sid)
+
             print(f"Sending to {sid} join home emit")
 
-        @self.context.socketio.on("join_game")
+        @self.socketio.on("join_game")
         def handle_join_game(data):
             start_game = False
 
             username = data.get("username")
             mode = data.get("mode")
+            print(f"Mode got is {mode}")
             sid = request.sid
 
-            game_room = self.context.room_manager.find_room(mode)
-            if self.context.room_manager.add_to_game_room(sid, mode):
+            room_id = self.game_manager.find_room(sid, mode)
+            room = self.game_manager.get_room(room_id)
+
+            if room.is_room_full():
                 start_game = True
 
-            join_room(game_room)
+            join_room(room_id)
 
-            emit("join_game", {"username": username, "room": game_room}, to=sid)
-            print(f"{username} is being added to room {game_room}")
+            emit("join_game", {"username": username, "room": room_id}, to=sid)
+            print(f"{username} is being added to room {room_id}")
             print(
-                f"Home users: {self.context.room_manager.get_home_users()}\n Game rooms: {self.context.room_manager.get_rooms()}"
+                f"Home users: {self.game_manager.waiting_players}\n Game rooms: {self.game_manager.player_room}"
             )
 
             if start_game:
-
-                sid_list = self.context.room_manager.get_room_sids(game_room)
+                sid_list = room.players
                 number_of_players = len(sid_list)
-                color_list = self.context.board_manager.get_colors()
+                color_list = self.game_manager.color_list
 
-                self.context.board_manager.create_new_board(game_room)
+                room.start_game()
+                game = room.game
 
                 # Set time for players
-                if mode == "PVP":
+                game.start_players_time()
 
-                    self.state.players_time[game_room] = [
-                        self.starting_time,
-                        self.starting_time,
-                    ]
-                    self.state.current_turn[game_room] = 0
-                    self.context.socketio.start_background_task(self.count_time, game_room, mode)
-
-                    self.state.game_history[game_room] = []
+                self.socketio.start_background_task(game.count_time, self.socketio)
 
                 def send_start():
-                    
-                    self.context.socketio.sleep(0.3)
+
+                    self.socketio.sleep(0.3)
                     for i in range(number_of_players):
                         color = color_list[i]
-                        self.context.socketio.emit(
+                        self.socketio.emit(
                             "start_game",
-                            {"room": game_room, "color": color},
+                            {"room": room_id, "color": color},
                             to=sid_list[i],
                         )
-                        
-                        self.state.sid_color[sid_list[i]] = color
 
-                self.context.socketio.start_background_task(send_start)
-                print(f"Room number: {game_room}, start the game")
+                self.socketio.start_background_task(send_start)
+                print(f"Room number: {room_id}, start the game")
 
                 # Tell stockfish bot to begin the game if he is white
 
-                if mode == "PVE" and color_list[0] == "black":
+                if color_list[0] == "black":
+                    response = game.engine_move()
+                    fen = game.get_fen()
 
-                    fen = self.context.board_manager.get_board_fen(game_room)
-                    engine_move = self.context.stockfish.get_best_move(fen)
-                    self.context.board_manager.push_board(engine_move, game_room)
-                    fen = self.context.board_manager.get_board_fen(game_room)
-                    emit("move", {"fen": fen}, to=sid)
+                    if response:
+                        emit("move", {"fen": fen}, to=sid)
 
-        @self.context.socketio.on("cancel_matchmaking")
+        @self.socketio.on("cancel_matchmaking")
         def handle_cancel_matchmaking(data):
-            room = data.get("room")
+            room_id = data.get("room")
             sid = request.sid
 
             # Leave the current room
-            self.context.room_manager.remove_from_room(sid)
-            leave_room(room)
 
-            self.home = self.context.room_manager.get_home()
+            room = self.game_manager.get_room(room_id)
+            room.remove_player(sid)
+            self.game_manager.remove_from_room(room_id, sid)
+
+            leave_room(room_id)
 
             # Join home
-            self.context.room_manager.add_to_home(sid)
-            join_room(self.home)
+            self.game_manager.add_to_waiting_room(sid)
+            join_room(self.game_manager.HOME)
 
-            emit("join_home", {"username": sid, "room": self.home}, to=sid)
+            emit("join_home", {"username": sid, "room": self.game_manager.HOME}, to=sid)
             print(f"{sid} canceld matchmaking and is now joining home")
-            print(f"Home users: {self.context.room_manager.get_home_users()}")
+            print(f"Home users: {self.game_manager.waiting_players} \n Game rooms: {self.game_manager.player_room}")

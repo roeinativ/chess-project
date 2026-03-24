@@ -6,6 +6,7 @@ import { roomContext } from "@/contexts/roomContext";
 import { colorContext } from "@/contexts/colorContext";
 import { gameOnContext } from "@/contexts/gameOnContext";
 import { modeContext } from "@/contexts/modeContext";
+import { signedInContext } from "@/contexts/signedInContext";
 import { Chessboard } from "react-chessboard";
 import useSocket from "@/hooks/useSocket";
 import DigitalClock from "@/components/digitalClock";
@@ -24,6 +25,7 @@ export default function Game() {
   const { currentRoom, setCurrentRoom } = useContext(roomContext);
   const { color, setColor } = useContext(colorContext);
   const { mode, setMode } = useContext(modeContext);
+  const { signedIn, setSignedIn } = useContext(signedInContext)
 
   const [gameOn, setGameOn] = useState<boolean>(false);
   const [drawOffer, setDrawOffer] = useState<boolean>(false);
@@ -42,7 +44,8 @@ export default function Game() {
   };
   
   const navHistory = () => {
-    navigate("/history")
+    console.log(`Signed in? ${signedIn}`)
+    signedIn ? navigate("/history") : navigate("/sign-in")
   }
 
   const cancelMatchmaking = () => {

@@ -8,6 +8,7 @@ import { signedInContext } from "@/contexts/signedInContext";
 import { removeStoredUsername } from "@/hooks/storeUserName";
 import { socket } from "@/hooks/socket";
 
+
 export default function HomePage() {
   const { username, setUserName } = useContext(userContext);
   const { signedIn, setSignedIn } = useContext(signedInContext);
@@ -41,7 +42,7 @@ export default function HomePage() {
   };
 
   return (
-    <>
+    <main>
       <h1>Welcome to chess games</h1>
       <div className="flex justify-center gap-5">
         <Button onClick={() => enterGame("PVP")} className="!bg-green-700">
@@ -58,6 +59,6 @@ export default function HomePage() {
           </Button>
         )}
       </div>
-    </>
+    </main>
   );
 }

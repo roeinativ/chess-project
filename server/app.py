@@ -1,13 +1,12 @@
 from flask import Flask
 from flask_cors import CORS
 from flask_socketio import SocketIO
-from managers.room_manager import RoomManager
-from managers.board_manager import BoardManager
 from sockets.socket_events import SocketEvents
 from managers.signed_in_clients import SignedInClients
 from routes.route import Routes
-from models.users import db
+from models.extensions import db
 from engines.chess_engine import ChessEngine
+from game_manager import GameManager
 import logging
 
 
@@ -25,11 +24,10 @@ db.init_app(app)
 
 chess_engine = ChessEngine()
 signed_in_clients = SignedInClients()
-room_manager = RoomManager()
-board_manager = BoardManager(1)
-socket_events = SocketEvents(
-    socketio, room_manager, board_manager, signed_in_clients, chess_engine, app
-)
+game_manager = GameManager(socketio,chess_engine)
+
+socket_events = SocketEvents(game_manager,socketio,signed_in_clients)
+
 routes = Routes(app, signed_in_clients)
 
 

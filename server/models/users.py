@@ -10,4 +10,3 @@ class Users(db.Model):
         self.name = name
         self.password = password
         
-    

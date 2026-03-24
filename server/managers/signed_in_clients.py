@@ -31,11 +31,11 @@ class SignedInClients:
         print(f"Connected clients: {self.signed_in_clients}")
         
     def get_username(self,sid):
-        if self.signed_in_clients[sid]:
-            id = self.signed_in_clients[sid]
-            
+        id = self.signed_in_clients.get(sid)
+        
+        if id:
             user = Users.query.filter_by(id=id).first()
             username = user.name
             return username
-        
+    
         return "Guest"

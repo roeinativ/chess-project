@@ -39,13 +39,6 @@ export const gameSocket = {
     });
   },
 
-  onNotValidMove: (callback: (data: Types.MoveData) => void) => {
-    socket.on("is_move_valid", callback);
-  },
-
-  offNotValidMove: () => {
-    socket.off("is_move_valid");
-  },
 
   onWaitingForGame: (callback: (data: Types.OnWaitingForGameData) => void) => {
     socket.on("start_game", callback);
