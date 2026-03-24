@@ -1,5 +1,6 @@
 import { Chess } from "chess.js";
-import { useEffect } from "react";
+import { useEffect, useContext } from "react";
+import { colorContext } from "@/contexts/colorContext";
 import { gameSocket } from "./game.socket";
 import * as Types from "@/types/types";
 
@@ -25,24 +26,34 @@ export function useChessGame({
 
 
   // Listen for opponent move
+  const { color, setColor } = useContext(colorContext)
+
+  const toggle_turn = (dataColor: string) => {
+    if (dataColor === color) {
+      setIsTurn(false)
+    }
+
+    else {
+      setIsTurn(true)
+    }
+  }
+
   useEffect(() => {
     const handleMove = (data: Types.OnMoveData) => {
-
-
-      chessGameRef.current.load(data.fen);
       
       if (data.valid) {
 
+        
+        chessGameRef.current.load(data.fen);
         setFen(data.fen);
-        setIsTurn(true);
-        handlePreMoves();
-        console.log("Move is valid updating fen")
+        toggle_turn(data.color)
+        handlePreMoves()
+        console.log("Move valid");
       }
       
       else {
-        console.log("Move was not valid")
+        console.log("Move not valid")
       }
-
     };
 
     gameSocket.onMove(handleMove);

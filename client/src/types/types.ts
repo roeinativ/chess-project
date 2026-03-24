@@ -18,6 +18,7 @@ export type MoveData = {
 };
 
 export interface OnMoveData {
+  color: string
   valid: boolean
   fen: string;
 }

@@ -88,7 +88,7 @@ export default function Board({
     if (preMovesRef.current.length > 0) {
       const premove = preMovesRef.current[0];
       try {
-        move = chessGame.move({
+        move = chessGameRef.current.move({
           from: premove.sourceSquare,
           to: premove.targetSquare!,
           promotion: "",

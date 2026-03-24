@@ -8,12 +8,15 @@ class Room:
         mode,
         stockfish,
         signed_in_clients,
+        app
     ):
 
         self.room_id = room_id
         self.mode = mode
         self.stockfish = stockfish
         self.signed_in_clients = signed_in_clients
+        self.app = app
+        
         self.game = None
         self.players = []
         self.MAX_PLAYERS_PVP = 2
@@ -25,7 +28,7 @@ class Room:
 
     def start_game(self):
         self.game = Game(
-            self.mode, self.stockfish, self.players, self.signed_in_clients, self.room_id
+            self.mode, self.stockfish, self.players, self.signed_in_clients, self.room_id, self.app
         )
         self.game.init_sid_color(self.players)
 

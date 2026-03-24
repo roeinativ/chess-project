@@ -24,7 +24,7 @@ db.init_app(app)
 
 chess_engine = ChessEngine()
 signed_in_clients = SignedInClients()
-game_manager = GameManager(socketio,chess_engine)
+game_manager = GameManager(signed_in_clients,socketio,chess_engine,app)
 
 socket_events = SocketEvents(game_manager,socketio,signed_in_clients)
 

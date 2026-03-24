@@ -5,7 +5,7 @@ from models.games import GameHistory
 
 class Game:
     def __init__(
-        self, mode, stockfish, players, signed_in_clients, room_id
+        self, mode, stockfish, players, signed_in_clients, room_id, app
     ):
         self.board = Board()
         self.mode = mode
@@ -13,6 +13,7 @@ class Game:
         self.players = players
         self.signed_in_clients = signed_in_clients
         self.room_id = room_id
+        self.app = app
         
         self.color_turn = 0
         self.turn_count = 1
@@ -23,7 +24,7 @@ class Game:
         self.starting_time = 300
         self.sid_color = {}
         self.colors = ["white", "black"]
-        self.winner = None
+        self.winner = "Draw"
 
     def init_sid_color(self,sids):
         for i in range(len(sids)):
@@ -120,25 +121,30 @@ class Game:
     def end_game(self):
 
         if self.mode == "PVP":
-            usernames = []
+            
+            print("players list:", self.players)
+            print("all signed in clients:", self.signed_in_clients.signed_in_clients)
+            with self.app.app_context():
+                usernames = []
 
-            first_player = self.players[0]
-            if self.sid_color[first_player] != "white":
-                self.players.reverse()
+                first_player = self.players[0]
+                if self.sid_color[first_player] != "white":
+                    self.players.reverse()
 
-            for i in range(len(usernames)):
-                player_sid = self.players[i]
+                for i in range(len(self.players)):
+                    player_sid = self.players[i]
 
-                found_user = self.signed_in_clients.get_username(player_sid)
-                usernames.append(found_user)
+                    found_user = self.signed_in_clients.get_username(player_sid)
+                    usernames.append(found_user)
 
                 new_game_history = GameHistory(
                     usernames[0], usernames[1], self.winner, self.game_history
                 )
-
+                
+        
                 db.session.add(new_game_history)
                 db.session.commit()
-
+                
                 print(new_game_history)
 
     def get_fen(self):
@@ -161,7 +167,9 @@ class Game:
                 winner_index = 1 - self.color_turn
                 if winner_index == 1:
                     winner = "black"
-
+                    
+                self.winner = winner
+                
                 message = f"Time run out winner is {winner}"
                 self.end_game()
                 

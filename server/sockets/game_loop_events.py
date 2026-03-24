@@ -64,6 +64,8 @@ class GameLoopEvents:
 
             if color == "white":
                 winner = "black"
+            
+            game.winner = winner
 
             winner = winner.capitalize()
             color = color.capitalize()
@@ -85,7 +87,7 @@ class GameLoopEvents:
             game = game_room.game
 
             if status == "offer":
-                opponent_sid = game_room.get_opponent_sid(room, sid)
+                opponent_sid = game_room.get_opponent_sid(sid)
                 emit("draw", to=opponent_sid)
 
             elif status == "accept":

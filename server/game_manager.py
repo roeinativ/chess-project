@@ -1,16 +1,20 @@
 from managers.room_manager import Room
 from engines.chess_engine import ChessEngine
-from managers.signed_in_clients import SignedInClients
 
 
 class GameManager:
-    def __init__(self,socketio,stockfish):
+    def __init__(self,signed_in_clients,socketio,stockfish,app):
+        
         self.socketio = socketio
         self.stockfish = stockfish
+        self.app = app
+        
         self.rooms = {}
         self.player_room = {}
         self.waiting_players = []
-        self.signed_in_clients = SignedInClients()
+        
+        self.signed_in_clients = signed_in_clients
+        
         self.color_list = ["white","black"]
         self.room_id = 1
         self.MAX_PLAYERS_PVP = 2
@@ -35,7 +39,7 @@ class GameManager:
         # Add the first room if doesnt exist
         if self.room_id not in self.rooms:
             self.rooms[self.room_id] = Room(
-                self.room_id, mode, self.stockfish, self.signed_in_clients 
+                self.room_id, mode, self.stockfish, self.signed_in_clients , self.app
             )
             self.rooms[self.room_id].add_player(sid)
             
@@ -52,7 +56,7 @@ class GameManager:
         else:
             self.room_id += 1
             self.rooms[self.room_id] = Room(
-                self.room_id, mode, self.stockfish, self.signed_in_clients
+                self.room_id, mode, self.stockfish, self.signed_in_clients, self.app
             )
             self.rooms[self.room_id].add_player(sid)
             
