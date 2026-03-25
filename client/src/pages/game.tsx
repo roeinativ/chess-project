@@ -99,24 +99,29 @@ export default function Game() {
 
           {!waitingForGame ? (
             <div className="flex gap-4 items-stretch pl-50">
-              {isModePVP() && (
-                <div className="fixed left-0 top-1/2 -translate-y-1/2 flex flex-col gap-10 pl-10 items-start">
-                  <ResignDialog
-                    resign={() => gameSocket.resign(color, currentRoom, mode)}
-                  />
-                  <DrawDialog
-                    draw={() => gameSocket.emitDraw(currentRoom, "offer", mode)}
-                  />
 
-                  <DrawOffer
-                    drawOffer={drawOffer}
-                    response={(drawResponseMessage) =>
-                      gameSocket.emitDraw(currentRoom, drawResponseMessage, mode)
-                    }
-                    setDrawOffer={setDrawOffer}
-                  />
-                </div>
-              )}
+              <div className="fixed left-0 top-1/2 -translate-y-1/2 flex flex-col gap-10 pl-10 items-start">
+                <ResignDialog
+                  resign={() => gameSocket.resign(color, currentRoom, mode)}
+                />
+
+                {isModePVP() && (
+                  <div>
+                    <DrawDialog
+                      draw={() => gameSocket.emitDraw(currentRoom, "offer", mode)}
+                    />
+
+                    <DrawOffer
+                      drawOffer={drawOffer}
+                      response={(drawResponseMessage) =>
+                        gameSocket.emitDraw(currentRoom, drawResponseMessage, mode)
+                      }
+                      setDrawOffer={setDrawOffer}
+                    />
+                  </div>
+                )}
+              </div>
+              
 
               <div className="relative w-160">
                 <Board

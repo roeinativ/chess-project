@@ -18,6 +18,7 @@ class Room:
         self.app = app
         
         self.game = None
+        self.available = True
         self.players = []
         self.MAX_PLAYERS_PVP = 2
         self.MAX_PLAYERS_PVE = 1
@@ -31,6 +32,7 @@ class Room:
             self.mode, self.stockfish, self.players, self.signed_in_clients, self.room_id, self.app
         )
         self.game.init_sid_color(self.players)
+        self.available = False
 
     def get_room(self):
         return self.room_id
@@ -68,3 +70,4 @@ class Room:
 
     def exit_room(self):
         self.game.end_game()
+        self.available = True

@@ -1,6 +1,4 @@
 from managers.room_manager import Room
-from engines.chess_engine import ChessEngine
-
 
 class GameManager:
     def __init__(self,signed_in_clients,socketio,stockfish,app):
@@ -16,7 +14,7 @@ class GameManager:
         self.signed_in_clients = signed_in_clients
         
         self.color_list = ["white","black"]
-        self.room_id = 1
+        self.room_id = 0
         self.MAX_PLAYERS_PVP = 2
         self.MAX_PLAYERS_PVE = 1
         self.HOME = "home"
@@ -33,40 +31,41 @@ class GameManager:
         
     def remove_from_room(self,room_id,sid):
         self.player_room[room_id].remove(sid)
+        
+    def create_room(self,mode):
+        self.rooms[self.room_id] = Room(
+            self.room_id, mode, self.stockfish, self.signed_in_clients , self.app
+        )
+
 
     def find_room(self, sid, mode):
+        
+        # Try to reuse an existing room
+        for room_id, room in self.rooms.items():
+            if not room.is_room_full() and room.available and mode == room.mode:  
+                
+                room.add_player(sid)
+                
+                if room_id not in self.player_room:
+                    self.player_room[room_id] = []
+                    
+                self.player_room[room_id].append(sid)
+                self.waiting_players.remove(sid)
 
-        # Add the first room if doesnt exist
-        if self.room_id not in self.rooms:
-            self.rooms[self.room_id] = Room(
-                self.room_id, mode, self.stockfish, self.signed_in_clients , self.app
-            )
-            self.rooms[self.room_id].add_player(sid)
-            
-            self.player_room[self.room_id] = []
-            self.player_room[self.room_id].append(sid)
+                print(f"Player added players: {room.players}")
+                return room_id
 
-        # If current room isnt full add player
-        elif not self.rooms[self.room_id].is_room_full():
-            self.rooms[self.room_id].add_player(sid)
-            self.player_room[self.room_id].append(sid)
-            
+        # No available room create new one
+        self.room_id += 1
+        self.create_room(mode)
 
-        # Create a new room and increase room id
-        else:
-            self.room_id += 1
-            self.rooms[self.room_id] = Room(
-                self.room_id, mode, self.stockfish, self.signed_in_clients, self.app
-            )
-            self.rooms[self.room_id].add_player(sid)
-            
-            self.player_room[self.room_id] = []
-            self.player_room[self.room_id].append(sid)
-            
+        self.rooms[self.room_id].add_player(sid)
+        self.player_room[self.room_id] = [sid]
+
         self.waiting_players.remove(sid)
-            
+
         print(f"Player added players: {self.rooms[self.room_id].players}")
-            
+
         return self.room_id
 
     def end_game(self, room):

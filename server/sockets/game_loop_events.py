@@ -43,13 +43,18 @@ class GameLoopEvents:
 
             # Check engine move only applies if mode is PVE
             response = game.engine_move()
+            engine_color = game.get_engine_color()
+
 
             if response:
-                emit(
-                    "move", {"move": response["move"], "fen": response["fen"]}, to=room
-                )
+                
+                emit("move", {
+                    "valid": True, 
+                    "fen": response["fen"],
+                    "color": engine_color,                    
+                }, to=room)
 
-                engine_color = game.get_engine_color()
+                print(f"Engine move is {response['move']}")
                 self.is_game_over(game, engine_color, fen, room)
 
         @self.socketio.on("resign")

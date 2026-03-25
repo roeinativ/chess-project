@@ -1,5 +1,6 @@
 from flask import request
 from flask_socketio import join_room, leave_room, emit
+import random
 
 
 class MatchmakingEvents:
@@ -54,6 +55,8 @@ class MatchmakingEvents:
                 sid_list = room.players
                 number_of_players = len(sid_list)
                 color_list = self.game_manager.color_list
+                random.shuffle(color_list)
+                
 
                 room.start_game()
                 game = room.game
@@ -79,12 +82,14 @@ class MatchmakingEvents:
 
                 # Tell stockfish bot to begin the game if he is white
 
+                
                 if color_list[0] == "black":
                     response = game.engine_move()
                     fen = game.get_fen()
 
                     if response:
-                        emit("move", {"fen": fen}, to=sid)
+                        emit("move", {"valid": True,"fen": fen, "color": "white"}, to=sid)
+                        print(f"Engine move {response['move']}")
 
         @self.socketio.on("cancel_matchmaking")
         def handle_cancel_matchmaking(data):
