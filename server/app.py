@@ -6,7 +6,7 @@ from managers.signed_in_clients import SignedInClients
 from routes.route import Routes
 from models.extensions import db
 from engines.chess_engine import ChessEngine
-from game_manager import GameManager
+from managers.game_manager import GameManager
 import logging
 
 
@@ -24,9 +24,9 @@ db.init_app(app)
 
 chess_engine = ChessEngine()
 signed_in_clients = SignedInClients()
-game_manager = GameManager(signed_in_clients,socketio,chess_engine,app)
+game_manager = GameManager(signed_in_clients, socketio, chess_engine, app)
 
-socket_events = SocketEvents(game_manager,socketio,signed_in_clients)
+socket_events = SocketEvents(game_manager, socketio, signed_in_clients)
 
 routes = Routes(app, signed_in_clients)
 

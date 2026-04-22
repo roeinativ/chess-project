@@ -62,7 +62,7 @@ export default function GameHistory() {
   return (
     <main className="min-h-screen flex flex-col gap-20">
       <div>
-        <h1 className="font-bold font-mono">Game history</h1>
+        <h1 className="font-bold font-mono">Game History</h1>
       </div>
 
       <div>

@@ -20,9 +20,17 @@ export default function HomePage() {
   const navGame = () => {
     navigate("/game");
   };
-
+  
   const navHistory = () => {
-    navigate("/")
+    navigate("/history")
+  }
+
+  const navSignUp = () => {
+    navigate("/sign-up")
+  }
+
+    const navSignIn = () => {
+    navigate("/sign-in")
   }
 
   // Mount socket listeners
@@ -52,6 +60,16 @@ export default function HomePage() {
         <Button onClick={() => enterGame("PVE")} className="!bg-green-700">
           Play against computer
         </Button>
+
+        <Button onClick={navHistory}>Game History</Button>
+
+        {!signedIn && (
+          <div>
+            <Button onClick={navSignUp}>Sign up</Button>
+            <Button onClick={navSignIn}>Sign in</Button>
+          </div>
+        )}
+
 
         {signedIn && (
           <Button onClick={signOut} className="!bg-green-700">
