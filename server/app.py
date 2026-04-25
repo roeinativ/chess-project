@@ -7,6 +7,8 @@ from routes.route import Routes
 from models.extensions import db
 from engines.chess_engine import ChessEngine
 from managers.game_manager import GameManager
+from tcp_sockets.server import Server
+import threading
 import logging
 
 
@@ -30,11 +32,15 @@ socket_events = SocketEvents(game_manager, socketio, signed_in_clients)
 
 routes = Routes(app, signed_in_clients)
 
-
 if __name__ == "__main__":
 
     with app.app_context():
         db.create_all()
+        
+    tcp_server = Server()
+    
+    tcp_thread = threading.Thread(target=tcp_server.start_server, daemon=True)
+    tcp_thread.start()
 
     socketio.run(
         app=app,
