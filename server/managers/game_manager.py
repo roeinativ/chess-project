@@ -87,4 +87,23 @@ class GameManager:
             
         print(f"Game Ended \n Home: {self.waiting_players}")
         
+    def avialiable_ids(self):
+        available_ids = []
         
+        for room_id, room in self.rooms.items():
+            if not room.available:
+                available_ids.append(room_id)
+        
+        print(f"Game manager returned {available_ids}")    
+        return available_ids 
+    
+    def find_room_fen(self,id):
+        new_id = int(id)
+        
+        try:    
+            fen = self.rooms[new_id].game.board.board
+            print(f"Game manager returned {fen} \n" )
+            return fen
+        
+        except (KeyError, AttributeError):
+            print(f"Room number {new_id} does not exist")

@@ -37,7 +37,7 @@ if __name__ == "__main__":
     with app.app_context():
         db.create_all()
         
-    tcp_server = Server()
+    tcp_server = Server(game_manager)
     
     tcp_thread = threading.Thread(target=tcp_server.start_server, daemon=True)
     tcp_thread.start()
