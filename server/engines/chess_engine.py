@@ -1,9 +1,11 @@
 from stockfish import Stockfish
+import os
 
 
 class ChessEngine:
     def __init__(self):
-        self.ENGINE_PATH = r"C:\Users\roein\chess-project\server\engines\stockfish-windows-x86-64-avx2.exe"
+        self.BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+        self.ENGINE_PATH = os.path.join(self.BASE_DIR, "stockfish-windows-x86-64-avx2.exe")
 
         self.params = {
             "Threads": 1,

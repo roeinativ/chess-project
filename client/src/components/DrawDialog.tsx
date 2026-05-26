@@ -9,8 +9,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "./ui/alert-dialog";
-
-import { Button } from "./ui/button";
 import { useState } from "react";
 
 type DrawDialogType = {
@@ -23,43 +21,48 @@ export default function DrawDialog({ draw }: DrawDialogType) {
   const handleDraw = () => {
     draw();
     setCooldown(true);
-
-    setTimeout(() => {
-      setCooldown(false);
-    }, 10000);
+    setTimeout(() => setCooldown(false), 10000);
   };
 
   return (
-    <>
-      <AlertDialog>
-        <AlertDialogTrigger asChild>
-          <Button className="w-80 !bg-green-700" disabled={cooldown}>
-            Draw
-          </Button>
-        </AlertDialogTrigger>
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
+        <button
+          disabled={cooldown}
+          className="px-5 py-2.5 rounded-lg text-sm font-medium transition-all cursor-pointer border disabled:opacity-40 disabled:cursor-not-allowed"
+          style={{ background: "rgba(200,169,110,0.08)", color: "#c8a96e", borderColor: "rgba(200,169,110,0.25)" }}
+          onMouseEnter={e => { if (!cooldown) { e.currentTarget.style.background = "rgba(200,169,110,0.18)"; e.currentTarget.style.borderColor = "rgba(200,169,110,0.5)"; }}}
+          onMouseLeave={e => { e.currentTarget.style.background = "rgba(200,169,110,0.08)"; e.currentTarget.style.borderColor = "rgba(200,169,110,0.25)"; }}
+        >
+          {cooldown ? "Offer Sent…" : "Offer Draw"}
+        </button>
+      </AlertDialogTrigger>
 
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>
-              Are you sure you want to offer draw?
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              This action can not be undone
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-
-          <AlertDialogFooter>
-            <div className="flex flex-row justify-center w-full gap-10">
-              <AlertDialogCancel className="!bg-green-700">
-                Cancel
-              </AlertDialogCancel>
-              <AlertDialogAction className="!bg-green-700" onClick={handleDraw}>
-                Continue
-              </AlertDialogAction>
-            </div>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </>
+      <AlertDialogContent className="bg-[#111] border-[#c8a96e]/20 text-white max-w-sm">
+        <AlertDialogHeader>
+          <AlertDialogTitle className="text-white text-lg">Offer a draw?</AlertDialogTitle>
+          <AlertDialogDescription className="text-white/40">
+            Your opponent will be asked to accept or decline.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter className="flex flex-row justify-center gap-3 w-full sm:justify-center">
+          <AlertDialogCancel
+            className="flex-1 rounded-lg border cursor-pointer"
+            style={{ background: "rgba(255,255,255,0.05)", color: "#fff", borderColor: "rgba(255,255,255,0.12)" }}
+          >
+            Cancel
+          </AlertDialogCancel>
+          <AlertDialogAction
+            onClick={handleDraw}
+            className="flex-1 rounded-lg cursor-pointer border-0"
+            style={{ background: "#c8a96e", color: "#0a0a0a" }}
+            onMouseEnter={e => (e.currentTarget.style.background = "#d4ba85")}
+            onMouseLeave={e => (e.currentTarget.style.background = "#c8a96e")}
+          >
+            Send Offer
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
