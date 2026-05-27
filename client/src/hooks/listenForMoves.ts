@@ -31,10 +31,12 @@ export function useChessGame({
   const toggle_turn = (dataColor: string) => {
     if (dataColor === color) {
       setIsTurn(false)
+      console.log(`Set is turn to: false`)
     }
 
     else {
       setIsTurn(true)
+      console.log("Set is turn to: true")
     }
   }
 
@@ -42,8 +44,7 @@ export function useChessGame({
     const handleMove = (data: Types.OnMoveData) => {
       
       if (data.valid) {
-
-        
+        console.log(data)
         chessGameRef.current.load(data.fen);
         setFen(data.fen);
         toggle_turn(data.color)

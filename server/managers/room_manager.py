@@ -22,6 +22,8 @@ class Room:
         self.players = []
         self.MAX_PLAYERS_PVP = 2
         self.MAX_PLAYERS_PVE = 1
+        
+        self.color_list = []
 
     def reset_room(self):
         self.players = []
@@ -31,7 +33,7 @@ class Room:
         self.game = Game(
             self.mode, self.stockfish, self.players, self.signed_in_clients, self.room_id, self.app
         )
-        self.game.init_sid_color(self.players)
+        self.color_list = self.game.init_sid_color(self.players)
         self.available = False
 
     def get_room(self):

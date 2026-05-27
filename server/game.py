@@ -1,6 +1,7 @@
 from managers.board_manager import Board
 from models.extensions import db
 from models.games import GameHistory
+import random
 
 
 class Game:
@@ -27,8 +28,14 @@ class Game:
         self.winner = "Draw"
 
     def init_sid_color(self,sids):
+        color_list = self.colors.copy()
+        random.shuffle(color_list)
         for i in range(len(sids)):
-            self.sid_color[sids[i]] = self.colors[i]
+            self.sid_color[sids[i]] = color_list[i]
+            
+        return color_list
+                 
+
 
 
     def start_players_time(self):

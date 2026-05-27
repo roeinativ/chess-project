@@ -37,14 +37,12 @@ class GameLoopEvents:
                 {"valid": response["valid"], "fen": response["fen"], "color": color},
                 to=room,
             )
-
             fen = response["fen"]
             self.is_game_over(game, color, fen, room)
 
             # Check engine move only applies if mode is PVE
             response = game.engine_move()
             engine_color = game.get_engine_color()
-
 
             if response:
                 

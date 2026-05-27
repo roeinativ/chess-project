@@ -33,12 +33,14 @@ export default function Game() {
   const pieceColor = color === "white" ? "w" : "b";
   const [isTurn, setIsTurn] = useState<boolean>(false);
 
-  useEffect(() => { setIsTurn(color === "white"); }, [color]);
+  useEffect(() => {
+    console.log(`Is turn: ${isTurn}`)
+  }, [isTurn,color])
 
   // Must be called before the game start listener so draw works
   useSocket({ setDrawOffer });
 
-  const navHome    = () => navigate("/");
+  const navHome = () => navigate("/");
   const navHistory = () => signedIn ? navigate("/history") : navigate("/sign-in");
   const cancelMatchmaking = () => { navHome(); gameSocket.cancelMatchmaking(currentRoom); };
   const isGameOver = () => !gameOn && !waitingForGame;
@@ -49,6 +51,7 @@ export default function Game() {
   useEffect(() => {
     const handleGameStart = (data: Types.OnWaitingForGameData) => {
       setColor(data.color);
+      setIsTurn(data.color === "white")
       setWaitingForGame(false);
       setGameOn(true);
     };
@@ -128,7 +131,6 @@ export default function Game() {
                 )}
               </div>
 
-              {/* Board — NOT touched at all, just wrapped for sizing */}
               <div className="order-1 lg:order-2 w-full" style={{ maxWidth: "min(85vw, 580px)" }}>
                 <Board
                   setEndingMessage={setEndingMessage}
@@ -137,7 +139,6 @@ export default function Game() {
                 />
               </div>
 
-              {/* Clocks */}
               {isModePVP() && (
                 <div className="flex flex-row lg:flex-col justify-center gap-6 order-3">
                   <DigitalClock

@@ -54,12 +54,11 @@ class MatchmakingEvents:
             if start_game:
                 sid_list = room.players
                 number_of_players = len(sid_list)
-                color_list = self.game_manager.color_list
-                random.shuffle(color_list)
-                
 
                 room.start_game()
                 game = room.game
+                color_list = room.color_list
+
 
                 # Set time for players
                 game.start_players_time()
@@ -81,7 +80,6 @@ class MatchmakingEvents:
                 print(f"Room number: {room_id}, start the game")
 
                 # Tell stockfish bot to begin the game if he is white
-
                 
                 if color_list[0] == "black":
                     response = game.engine_move()
