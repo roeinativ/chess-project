@@ -15,10 +15,16 @@ class ChessEngine:
         }
 
     def create_instance(self):
+        if not os.path.exists(self.ENGINE_PATH):
+            print(f"Stockfish not found")
+            return None
+        
         return Stockfish(path=self.ENGINE_PATH, depth=12, parameters=self.params)
 
     def get_best_move(self, fen):
         sf = self.create_instance()
-        sf.set_fen_position(fen)
-        best_move = sf.get_best_move_time(2000)
-        return best_move
+        
+        if sf:
+            sf.set_fen_position(fen)
+            best_move = sf.get_best_move_time(2000)
+            return best_move
