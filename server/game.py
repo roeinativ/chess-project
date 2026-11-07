@@ -2,12 +2,13 @@ from managers.board_manager import Board
 from models.extensions import db
 from models.games import GameHistory
 import random
-
+import threading
 
 class Game:
     def __init__(
         self, mode, stockfish, players, signed_in_clients, room_id, app
     ):
+        self.lock = threading.Lock()
         self.board = Board()
         self.mode = mode
         self.stockfish = stockfish
@@ -51,41 +52,42 @@ class Game:
 
     # A function that gets a move and updates to game hystory and board state
     def handle_move(self, sid, color ,move):
+        with self.lock:
 
-        if not self.board.valid_move(move) or self.sid_color.get(sid) != color:
-            print("Move was not valid")
-            return {"valid": False}
+            if not self.board.valid_move(move) or self.sid_color.get(sid) != color:
+                print("Move was not valid")
+                return {"valid": False}
 
-        san_move = self.board.push_board(move)
+            san_move = self.board.push_board(move)
 
-        response = {
-            "valid": True,
-            "fen": self.get_fen(),
-        }
+            response = {
+                "valid": True,
+                "fen": self.get_fen(),
+            }
 
-        # If mode is PVP append to game history
-        if self.mode == "PVP":
+            # If mode is PVP append to game history
+            if self.mode == "PVP":
 
-            # If white made move create a new turn
-            if self.color_turn == 0:
-                self.game_history.append(
-                    {
-                        "turn": self.turn_count,
-                        "white_move": san_move,
-                        "black_move": None,
-                    }
-                )
+                # If white made move create a new turn
+                if self.color_turn == 0:
+                    self.game_history.append(
+                        {
+                            "turn": self.turn_count,
+                            "white_move": san_move,
+                            "black_move": None,
+                        }
+                    )
 
-            # If black made move append black move
-            else:
-                self.game_history[-1]["black_move"] = san_move
-                self.turn_count += 1
+                # If black made move append black move
+                else:
+                    self.game_history[-1]["black_move"] = san_move
+                    self.turn_count += 1
 
-            # Color turn will be represented by a number. 0 for white and 1 for black.
-            self.color_turn = 1 - self.color_turn
+                # Color turn will be represented by a number. 0 for white and 1 for black.
+                self.color_turn = 1 - self.color_turn
 
-        print("Move was valid")
-        return response
+            print("Move was valid")
+            return response
 
     def get_winner(self, color):
 
