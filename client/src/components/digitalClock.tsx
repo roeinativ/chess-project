@@ -17,7 +17,7 @@ export default function DigitalClock({
         if (prev <= 0) return 0;
         return prev - 1;
       });
-    }, 1000);
+    }, 1000); // 1000 in ms
 
     return () => clearInterval(interval);
   }, [isTurn, isGameOver]);
@@ -29,7 +29,7 @@ export default function DigitalClock({
     <Item
       variant={"outline"}
       className={
-        pieceColor === "w"
+        pieceColor === "w" // Change clock bg based on player color
           ? "w-50 justify-center font-mono font-bold tracking-widest !bg-white"
           : "w-50 justify-center font-mono font-bold tracking-widest !bg-black"
       }

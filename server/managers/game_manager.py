@@ -37,22 +37,36 @@ class GameManager:
             self.room_id, mode, self.stockfish, self.signed_in_clients , self.app
         )
 
+    def one_player_room(self):
+        for room_id, room in self.rooms.items():
+            if room.has_one_player_queue():
+                return True,room_id
+            
+        return False, None
 
+    def add_to_room(self, room, sid, room_id):
+        room.add_player(sid)
+
+        if room_id not in self.player_room:
+            self.player_room[room_id] = []  
+            
+        self.player_room[room_id].append(sid)
+        self.waiting_players.remove(sid)
+        
     def find_room(self, sid, mode):
+        
+        valid, room_id = self.one_player_room()
+        
+        if valid:
+            room = self.rooms[room_id]
+            self.add_to_room(room, sid, room_id)
+            return room_id
         
         # Try to reuse an existing room
         for room_id, room in self.rooms.items():
             if not room.is_room_full() and room.available and mode == room.mode:  
                 
-                room.add_player(sid)
-                
-                if room_id not in self.player_room:
-                    self.player_room[room_id] = []
-                    
-                self.player_room[room_id].append(sid)
-                self.waiting_players.remove(sid)
-
-                print(f"Player added players: {room.players}")
+                self.add_to_room(room,sid,room_id)
                 return room_id
 
         # No available room create new one

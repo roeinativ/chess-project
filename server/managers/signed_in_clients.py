@@ -13,11 +13,14 @@ class SignedInClients:
         self.signed_in_clients.pop(sid)
 
     def update_user(self, username, new_sid):
+        
+        # Get user id from the db by filtering it with its username.
         current_user = Users.query.filter_by(name=username).first()
         user_id = current_user.id
 
         if user_id in self.signed_in_clients.values():
 
+            # Update new sid.
             for sid, id in self.signed_in_clients.items():
                 if id == user_id:
                     prev_sid = sid
@@ -30,6 +33,8 @@ class SignedInClients:
 
         print(f"Connected clients: {self.signed_in_clients}")
         
+        
+    # This function returns the username by its sid. If user does not exist the function will return "Guest".
     def get_username(self,sid):
         id = self.signed_in_clients.get(sid)
         

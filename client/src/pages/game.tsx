@@ -34,35 +34,44 @@ export default function Game() {
   const [isTurn, setIsTurn] = useState<boolean>(false);
 
   useEffect(() => {
-    console.log(`Is turn: ${isTurn}`)
-  }, [isTurn,color])
+    console.log(`Is turn: ${isTurn}`);
+  }, [isTurn, color]);
 
   // Must be called before the game start listener so draw works
   useSocket({ setDrawOffer });
 
   const navHome = () => navigate("/");
-  const navHistory = () => signedIn ? navigate("/history") : navigate("/sign-in");
-  const cancelMatchmaking = () => { navHome(); gameSocket.cancelMatchmaking(currentRoom); };
+  const navHistory = () =>
+    signedIn ? navigate("/history") : navigate("/sign-in");
+  const cancelMatchmaking = () => {
+    navHome();
+    gameSocket.cancelMatchmaking(currentRoom);
+  };
   const isGameOver = () => !gameOn && !waitingForGame;
-  const StartWaiting = () => { gameSocket.joinGame(null, mode); setWaitingForGame(true); setGameOn(false); };
+  const StartWaiting = () => {
+    gameSocket.joinGame(null, mode);
+    setWaitingForGame(true);
+    setGameOn(false);
+  };
   const isModePVP = () => mode === "PVP";
 
   // Listen for game start — must be registered early, server may respond immediately for PVE
   useEffect(() => {
     const handleGameStart = (data: Types.OnWaitingForGameData) => {
       setColor(data.color);
-      setIsTurn(data.color === "white")
+      setIsTurn(data.color === "white");
       setWaitingForGame(false);
       setGameOn(true);
     };
     gameSocket.onWaitingForGame(handleGameStart);
-    return () => { gameSocket.offWaitingForGame(); };
+    return () => {
+      gameSocket.offWaitingForGame();
+    };
   }, []);
 
   return (
     <gameOnContext.Provider value={{ gameOn, setGameOn }}>
       <main className="min-h-screen w-full bg-[#0a0a0a] relative">
-
         {/* Chess BG */}
         <div
           aria-hidden="true"
@@ -75,7 +84,15 @@ export default function Game() {
           }}
         >
           {Array.from({ length: 64 }).map((_, i) => (
-            <div key={i} style={{ background: (Math.floor(i / 8) + (i % 8)) % 2 === 0 ? "#c8a96e" : "#2e1b0e" }} />
+            <div
+              key={i}
+              style={{
+                background:
+                  (Math.floor(i / 8) + (i % 8)) % 2 === 0
+                    ? "#c8a96e"
+                    : "#2e1b0e",
+              }}
+            />
           ))}
         </div>
 
@@ -104,7 +121,15 @@ export default function Game() {
         {/* Top bar */}
         <header className="relative z-10 flex items-center justify-between px-4 sm:px-8 py-4 border-b border-[#c8a96e]/10">
           <div className="flex items-center gap-2">
-            <span className="text-xl" style={{ color: "#c8a96e", filter: "drop-shadow(0 0 8px rgba(200,169,110,0.5))" }}>♟</span>
+            <span
+              className="text-xl"
+              style={{
+                color: "#c8a96e",
+                filter: "drop-shadow(0 0 8px rgba(200,169,110,0.5))",
+              }}
+            >
+              ♟
+            </span>
             <span className="text-white/30 text-sm hidden sm:inline">
               {isModePVP() ? "Player vs Player" : "Player vs Computer"}
             </span>
@@ -115,23 +140,35 @@ export default function Game() {
         <div className="relative z-10 flex items-center justify-center min-h-[calc(100vh-65px)] px-2 sm:px-6 py-6">
           {!waitingForGame ? (
             <div className="flex flex-col lg:flex-row items-center justify-center gap-6 w-full max-w-5xl">
-
               {/* Controls — row on mobile, column on desktop */}
               <div className="flex flex-row lg:flex-col gap-3 items-center order-2 lg:order-1">
-                <ResignDialog resign={() => gameSocket.resign(color, currentRoom, mode)} />
+                <ResignDialog
+                  resign={() => gameSocket.resign(color, currentRoom, mode)}
+                />
+
+                {/* If mode is PVP show draw dialog */}
                 {isModePVP() && (
                   <>
-                    <DrawDialog draw={() => gameSocket.emitDraw(currentRoom, "offer", mode)} />
+                    <DrawDialog
+                      draw={() =>
+                        gameSocket.emitDraw(currentRoom, "offer", mode)
+                      }
+                    />
                     <DrawOffer
                       drawOffer={drawOffer}
-                      response={msg => gameSocket.emitDraw(currentRoom, msg, mode)}
+                      response={(msg) =>
+                        gameSocket.emitDraw(currentRoom, msg, mode)
+                      }
                       setDrawOffer={setDrawOffer}
                     />
                   </>
                 )}
               </div>
 
-              <div className="order-1 lg:order-2 w-full" style={{ maxWidth: "min(85vw, 580px)" }}>
+              <div
+                className="order-1 lg:order-2 w-full"
+                style={{ maxWidth: "min(85vw, 580px)" }}
+              >
                 <Board
                   setEndingMessage={setEndingMessage}
                   isTurn={isTurn}

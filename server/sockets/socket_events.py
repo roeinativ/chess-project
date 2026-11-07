@@ -9,9 +9,10 @@ class SocketEvents:
         self.game_manager = game_manager
         self.socketio = socketio
         self.signed_in_clients = signed_in_clients
-        self.starting_time = 300000000
+        self.starting_time = 300 # In seconds
         self.socket_events()
 
+    # Create and mount the socket events listeners.
     def socket_events(self):
 
         MatchmakingEvents(

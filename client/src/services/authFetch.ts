@@ -1,7 +1,11 @@
 import { API_BASE } from "./api";
-import * as Types from "@/types/types"
+import * as Types from "@/types/types";
 
-export async function authFetch({endpoint,enterUsername, password}: Types.AuthFetchType) {
+export async function authFetch({
+  endpoint,
+  enterUsername,
+  password,
+}: Types.AuthFetchType) {
   const res = await fetch(`${API_BASE}/${endpoint}`, {
     method: "POST",
     headers: {
@@ -20,5 +24,5 @@ export async function authFetch({endpoint,enterUsername, password}: Types.AuthFe
     return data;
   }
 
-  throw new Error(data.message)
+  throw new Error(data.message);
 }

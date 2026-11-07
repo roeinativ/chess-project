@@ -35,9 +35,6 @@ class Game:
             
         return color_list
                  
-
-
-
     def start_players_time(self):
 
         if self.mode == "PVP":
@@ -52,9 +49,10 @@ class Game:
     def get_player_color(self, sid):
         return self.sid_color[sid]
 
-    def handle_move(self, move):
+    # A function that gets a move and updates to game hystory and board state
+    def handle_move(self, sid, color ,move):
 
-        if not self.board.valid_move(move):
+        if not self.board.valid_move(move) or self.sid_color.get(sid) != color:
             print("Move was not valid")
             return {"valid": False}
 
@@ -83,6 +81,7 @@ class Game:
                 self.game_history[-1]["black_move"] = san_move
                 self.turn_count += 1
 
+            # Color turn will be represented by a number. 0 for white and 1 for black.
             self.color_turn = 1 - self.color_turn
 
         print("Move was valid")
@@ -134,6 +133,8 @@ class Game:
             with self.app.app_context():
                 usernames = []
 
+
+                # Make sure players list will contain white player first for game history convenience.
                 first_player = self.players[0]
                 if self.sid_color[first_player] != "white":
                     self.players.reverse()
@@ -141,9 +142,11 @@ class Game:
                 for i in range(len(self.players)):
                     player_sid = self.players[i]
 
+                    # Get username or else get a "Guest" username.
                     found_user = self.signed_in_clients.get_username(player_sid)
                     usernames.append(found_user)
 
+                # Create a new game history object with the correct parameters.
                 new_game_history = GameHistory(
                     usernames[0], usernames[1], self.winner, self.game_history
                 )
@@ -166,11 +169,14 @@ class Game:
         game_on = True
 
         while game_on:
+            
+            # Reduce current player clock time.
             socketio.sleep(1)
             self.players_time[self.color_turn] -= 1
 
             if self.players_time[self.color_turn] <= 0:
 
+                # Winner will be the opposite player
                 winner_index = 1 - self.color_turn
                 if winner_index == 1:
                     winner = "black"

@@ -8,6 +8,8 @@ class MatchmakingEvents:
 
         self.game_manager = game_manager
         self.socketio = socketio
+        
+        # This mounts the sockets to listen for events.
         self.matchmaking_events()
 
     def matchmaking_events(self):
@@ -63,6 +65,7 @@ class MatchmakingEvents:
                 # Set time for players
                 game.start_players_time()
 
+                # SocketIo counts players time in the background.
                 self.socketio.start_background_task(game.count_time, self.socketio)
 
                 def send_start():
@@ -76,6 +79,7 @@ class MatchmakingEvents:
                             to=sid_list[i],
                         )
 
+                # Synchronizes the start game message.
                 self.socketio.start_background_task(send_start)
                 print(f"Room number: {room_id}, start the game")
 

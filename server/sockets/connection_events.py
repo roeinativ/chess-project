@@ -9,15 +9,21 @@ class ConnectionEvents:
         self.game_manager = game_manager
         self.socketio = socketio
         self.signed_in_clients = signed_in_clients
+        
+        # This mounts the sockets to listen for events.
         self.connection_events()
 
     def connection_events(self):
 
         @self.socketio.on("connect")
         def handle_connect():
+            
+            # Flask server returns the sid of the client that sent the event.
             sid = request.sid
             print(f"client connected {sid}")
 
+
+        # If authenticated user updates its connection (by refresh etc...) its new sid will be updated.
         @self.socketio.on("update_connection")
         def handle_update_connection(data):
             new_sid = request.sid

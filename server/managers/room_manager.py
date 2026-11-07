@@ -28,6 +28,8 @@ class Room:
     def reset_room(self):
         self.players = []
         self.game = None
+        self.color_list = []
+        self.available = True
 
     def start_game(self):
         self.game = Game(
@@ -62,6 +64,9 @@ class Room:
         for player_sid in self.players:
             if player_sid != sid:
                 return player_sid
+            
+    def has_one_player_queue(self):
+        return len(self.players) == 1 and self.available
 
     def get_max_players(self):
 

@@ -14,7 +14,7 @@ class Board:
 
     def get_legal_moves(self):
         if not self.board:
-            print("board is empty")
+            print("Board is empty")
             return []
 
         uci_moves = [move.uci() for move in self.board.legal_moves]

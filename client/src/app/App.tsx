@@ -22,6 +22,8 @@ export default function App() {
   socket.connect();
 
   return (
+
+    // All use state variables are used with context provider meaning the same state is shared across all subclasses.
     <>
       <userContext.Provider value={{ username, setUserName }}>
         <roomContext.Provider value={{ currentRoom, setCurrentRoom }}>

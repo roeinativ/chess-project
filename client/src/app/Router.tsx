@@ -6,6 +6,7 @@ import SignUpPage from "@/pages/signUp";
 import SignInPage from "@/pages/signIn";
 
 export default function Router() {
+  // This contains all of the aviliable page routes in the app.
   return (
     <BrowserRouter>
       <Routes>

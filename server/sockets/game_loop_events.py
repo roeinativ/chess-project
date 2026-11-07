@@ -7,6 +7,8 @@ class GameLoopEvents:
         
         self.game_manager = game_manager
         self.socketio = socketio
+        
+        # This mounts the sockets to listen for events.
         self.game_loop_events()
 
     def game_loop_events(self):
@@ -16,6 +18,13 @@ class GameLoopEvents:
 
             color = data.get("color")
             room = data.get("room")
+            sid = request.sid
+            
+            game_room = self.game_manager.get_room(room)
+            game = game_room.game
+            
+            # Prevent a client pretending to be a different color
+
 
             square_from = data.get("from")
             square_to = data.get("to")
@@ -27,10 +36,8 @@ class GameLoopEvents:
                 move = move + promotion
                 print(f"New move is {move}")
 
-            game_room = self.game_manager.get_room(room)
-            game = game_room.game
 
-            response = game.handle_move(move)
+            response = game.handle_move(sid,color,move)
 
             emit(
                 "move",
@@ -84,14 +91,13 @@ class GameLoopEvents:
         def handle_draw(data):
             room = data.get("room")
             status = data.get("status")
-            sid = request.sid
 
             game_room = self.game_manager.get_room(room)
             game = game_room.game
 
+            # Send draw offer to opponent.
             if status == "offer":
-                opponent_sid = game_room.get_opponent_sid(sid)
-                emit("draw", to=opponent_sid)
+                emit("draw", to=room, include_self=False)
 
             elif status == "accept":
                 message = "Both players agreed on a draw"
@@ -104,6 +110,7 @@ class GameLoopEvents:
     def is_game_over(self, game, color, fen, room):
         winner_message = game.get_winner(color)
 
+        # If no winner, winner_message will be None.
         if winner_message:
             self.game_over(winner_message, fen, room)
 

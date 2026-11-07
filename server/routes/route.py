@@ -22,6 +22,7 @@ class Routes:
             username = data["username"]
             password = data["password"]
             
+            # Added username restrictions.
             if username == "Guest":
                 return jsonify({"message": "Username connot be 'Guest' please enter a different username"}), 400
             
@@ -66,7 +67,7 @@ class Routes:
                 return jsonify({"message": "User not found"}), 400
 
             elif not self.bcrypt.check_password_hash(found_user.password, password):
-                print("Wrong password")
+                print("User does not exist")
                 return jsonify({"message": "User not found"}), 400
 
             print(f"User logged in: {username}")
