@@ -9,7 +9,7 @@ import { useState } from "react";
 import { socket } from "@/hooks/socket";
 
 export default function App() {
-  const [username, setUserName] = useState<string | null>(
+  const [username, setUserName] = useState<string>(
     localStorage.getItem("username") ?? "Guest",
   );
   const [currentRoom, setCurrentRoom] = useState<string | null>(null);

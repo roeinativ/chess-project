@@ -1,4 +1,4 @@
-from game import Game
+from managers.game import Game
 
 
 class Room:

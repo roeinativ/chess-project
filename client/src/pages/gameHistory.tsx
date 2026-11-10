@@ -66,7 +66,6 @@ export default function GameHistory() {
 
   return (
     <main className="min-h-screen w-full bg-[#0a0a0a] relative overflow-x-hidden">
-      {/* Chess BG */}
       <div
         aria-hidden="true"
         className="fixed inset-0 opacity-[0.04] [transform:rotate(-12deg)_scale(1.6)] pointer-events-none"
@@ -107,7 +106,6 @@ export default function GameHistory() {
       `}</style>
 
       <div className="gh-root relative z-10 max-w-3xl mx-auto px-4 sm:px-8 py-8">
-        {/* Header */}
         <header className="anim-hdr flex items-center justify-between mb-10 pb-5 border-b border-[#c8a96e]/15">
           <div className="flex items-center gap-3">
             <span
@@ -131,7 +129,6 @@ export default function GameHistory() {
           </button>
         </header>
 
-        {/* Stats row */}
         {games.length > 0 && (
           <div className="anim-body grid grid-cols-3 gap-3 mb-8">
             {[
@@ -162,7 +159,6 @@ export default function GameHistory() {
           </div>
         )}
 
-        {/* Table */}
         <div className="anim-body rounded-xl border border-[#c8a96e]/15 bg-white/[0.02] overflow-hidden">
           {games.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20 text-white/20">
@@ -224,7 +220,6 @@ export default function GameHistory() {
         </div>
       </div>
 
-      {/* Move history dialog */}
       <Dialog open={!!selectedGame} onOpenChange={() => setSelectedGame(null)}>
         <DialogContent className="bg-[#111] border-[#c8a96e]/20 text-white max-w-md max-h-[80vh] overflow-y-auto">
           <DialogTitle className="gh-title text-xl font-bold text-white">
@@ -236,7 +231,6 @@ export default function GameHistory() {
           </DialogDescription>
 
           <div className="flex flex-col gap-1">
-            {/* Column headers */}
             <div className="grid grid-cols-[2rem_1fr_1fr] gap-2 px-2 pb-2 border-b border-white/10">
               <span className="text-[#c8a96e] text-xs uppercase tracking-wider">
                 #

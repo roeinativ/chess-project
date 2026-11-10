@@ -1,7 +1,5 @@
 from flask import request
 from flask_socketio import join_room, leave_room, emit
-import random
-
 
 class MatchmakingEvents:
     def __init__(self,game_manager,socketio):

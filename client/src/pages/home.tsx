@@ -29,7 +29,6 @@ export default function HomePage() {
   return (
     <main className="fixed inset-0 overflow-hidden bg-[#0a0a0a] font-sans">
 
-      {/* Chessboard BG */}
       <div
         aria-hidden="true"
         className="absolute inset-0 opacity-[0.07] [transform:rotate(-12deg)_scale(1.5)]"
@@ -43,14 +42,12 @@ export default function HomePage() {
         ))}
       </div>
 
-      {/* Vignette — centred so hero text is readable */}
       <div
         aria-hidden="true"
         className="absolute inset-0 pointer-events-none"
         style={{ background: "radial-gradient(ellipse at 50% 50%, transparent 10%, #0a0a0a 72%)" }}
       />
 
-      {/* Floating pieces */}
       <div aria-hidden="true" className="absolute inset-0 pointer-events-none overflow-hidden hidden sm:block">
         {[
           { ch: "♜", style: { right:"8%",  top:"8%",  fontSize:"clamp(7rem,14vw,14rem)", color:"rgba(200,169,110,0.09)", animation:"floatPiece 18s ease-in-out infinite" } },
@@ -86,10 +83,8 @@ export default function HomePage() {
         .font-dm      { font-family: 'DM Sans', sans-serif; }
       `}</style>
 
-      {/* Main content — centred column */}
       <div className="relative z-10 flex flex-col h-full px-4 sm:px-10 font-dm">
 
-        {/* Header */}
         <header className="anim-header flex items-center justify-between py-6 border-b border-[#c8a96e]/15">
           <span className="text-3xl" style={{ color:"#c8a96e", filter:"drop-shadow(0 0 10px rgba(200,169,110,0.5))" }}>♟</span>
           <div className="flex items-center gap-3">
@@ -125,7 +120,6 @@ export default function HomePage() {
           </div>
         </header>
 
-        {/* Hero — centred */}
         <section className="flex-1 flex flex-col items-center justify-center text-center">
           <p className="anim-eyebrow text-xs tracking-[0.25em] uppercase mb-5" style={{ color:"#c8a96e" }}>
             Your move.
@@ -144,7 +138,6 @@ export default function HomePage() {
             The board is set. Are you ready?
           </p>
 
-          {/* Buttons — centred */}
           <div className="anim-btns flex flex-col sm:flex-row flex-wrap items-center justify-center gap-3">
             <button
               onClick={() => enterGame("PVP")}

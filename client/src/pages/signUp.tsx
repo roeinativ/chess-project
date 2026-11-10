@@ -1,6 +1,5 @@
-import { useState, useContext } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { userContext } from "@/contexts/userContext";
 import { authFetch } from "@/services/authFetch";
 import SignUpComponent from "@/components/SignUpComponent";
 
@@ -8,7 +7,6 @@ export default function SignUpPage() {
   const [enterUsername, setEnterUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string>('')
-  const { username, setUserName } = useContext(userContext);
   const endpoint = "signUp"
 
   const navigate = useNavigate();

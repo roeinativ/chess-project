@@ -52,6 +52,8 @@ class Game:
 
     # A function that gets a move and updates to game hystory and board state
     def handle_move(self, sid, color ,move):
+        
+        # Use with in order to release the lock after use
         with self.lock:
 
             if not self.board.valid_move(move) or self.sid_color.get(sid) != color:
